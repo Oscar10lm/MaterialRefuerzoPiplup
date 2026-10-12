@@ -11,6 +11,26 @@ Sistema de drones acuáticos autónomos de la **Escuela Colombiana de Ingenierí
 
 ---
 
+## 🗺️ Reto 05 — Diagrama de Contexto C4 (Nivel 1)
+
+El diagrama de contexto representa al sistema **AquaPort MVP** como una caja negra central, modelando las personas (actores) y los flujos de información bidireccionales que entran y salen del sistema.
+
+### 🖼️ Diagrama Generado
+![Diagrama de Contexto C4 - AquaPort MVP](../docs/c4-contexto-piplup.png)
+
+> Archivo fuente editable disponible en: [`docs/c4-contexto-piplup.puml`](../docs/c4-contexto-piplup.puml)
+
+### 👥 Actores y Flujos de Información
+
+| Actor / Entidad | Rol / Responsabilidad | Flujo de Entrada (Hacia AquaPort) | Flujo de Salida (Desde AquaPort) |
+|---|---|---|---|
+| **Solicitante** | Investigador / Laboratorista | Solicitud de transporte de muestra ambiental o sensor | Código de misión generado |
+| **Operador Hídrico** | Personal técnico del campus | Solicitud de misión y asignación manual de drone | Confirmación de asignación y estado de misión en tiempo real |
+| **Administrador ECI** | Responsable directivo de la flota | Gestión de inventario de flota y consultas | Métricas operativas, disponibilidad y reportes |
+| **Sistemas Externos** | *Ninguno* | *Sin integraciones externas en el alcance del MVP* | *N/A* |
+
+---
+
 ## 🚀 Reto 01 — Streams & Lambdas
 
 Implementación del servicio `ConsultorFlota` que responde a las necesidades operativas de la estación mediante **Java Streams** puros, eliminando por completo bucles iterativos y estados mutables.
@@ -108,18 +128,7 @@ En lugar de un `GestorMision` monolítico con múltiples motivos para cambiar, e
 * **`NotificadorOperador`**: Encargado exclusivamente de emitir mensajes, alertas y reportes al operador.
 
 ### 2. Principio de Inversión de Dependencias (DIP)
-`RegistradorMisiones` no se acopla a ningún almacenamiento concreto (como `BaseDatosLocal` o mapas en memoria directos). Depende de la interfaz abstracta:
-
-```java
-public interface RepositorioMisiones {
-    void guardar(Mision mision);
-    Optional<Mision> buscarPorId(String id);
-    List<Mision> obtenerTodas();
-    boolean existePorId(String id);
-}
-```
-
-La implementación concreta (`RepositorioMisionesEnMemoria`) se suministra mediante **Constructor Injection**:
+`RegistradorMisiones` no se acopla a ningún almacenamiento concreto. Depende de la interfaz abstracta [`RepositorioMisiones`](src/aquaport/repository/RepositorioMisiones.java), inyectada por constructor (**Constructor Injection**):
 
 ```java
 RepositorioMisiones repo = new RepositorioMisionesEnMemoria();
