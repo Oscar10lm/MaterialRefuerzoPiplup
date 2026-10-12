@@ -1,0 +1,67 @@
+@startuml diagrama-cu-piplup
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam handwritten false
+skinparam defaultFontName "Segoe UI"
+skinparam fontSize 13
+
+skinparam actor {
+    BackgroundColor #084298
+    BorderColor #052c65
+    FontColor #084298
+    FontStyle bold
+}
+
+skinparam usecase {
+    BackgroundColor #E0F2FE
+    BorderColor #0284C7
+    FontColor #0F172A
+    ArrowColor #334155
+    ArrowFontColor #475569
+    ArrowFontSize 11
+}
+
+skinparam rectangle {
+    BackgroundColor #F8FAFC
+    BorderColor #64748B
+    FontColor #0F172A
+    FontSize 15
+    FontStyle bold
+}
+
+actor "Operador Hídrico" as operador
+actor "Solicitante" as solicitante
+actor "Administrador ECI" as admin
+
+rectangle "Sistema AquaPort MVP (Piplup)" {
+
+    ' Casos de uso principales
+    usecase "AP-01: Registrar Misión de\nTransporte de Muestra" as CU_Registrar
+    usecase "Consultar Estado de la Flota" as CU_VerFlota
+    usecase "Cancelar Misión Pendiente" as CU_Cancelar
+    usecase "Solicitar Transporte de Muestra" as CU_Solicitar
+    usecase "Gestionar Inventario de Drones" as CU_GestionarFlota
+    usecase "Consultar Reportes Operativos" as CU_Reportes
+
+    ' Casos de uso de inclusión y extensión
+    usecase "Validar Disponibilidad y\nBatería del Drone" as CU_Validar
+    usecase "Alertar Batería Crítica o\nInsuficiente" as CU_Alertar
+
+    ' Relaciones <<include>> y <<extend>>
+    CU_Registrar .> CU_Validar : <<include>>
+    CU_Alertar .> CU_Registrar : <<extend>>\n[condición: si batería < 35% o drone ocupado]
+}
+
+' Asociaciones de Actores con Casos de Uso
+solicitante --> CU_Solicitar
+CU_Solicitar ..> CU_Registrar : <<trigger / flujo>>
+
+operador --> CU_Registrar
+operador --> CU_VerFlota
+operador --> CU_Cancelar
+
+admin --> CU_GestionarFlota
+admin --> CU_Reportes
+
+@enduml
