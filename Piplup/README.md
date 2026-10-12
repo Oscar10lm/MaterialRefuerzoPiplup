@@ -193,6 +193,21 @@ classDiagram
 
 ---
 
+## 📑 Plantilla DOSW — Requisito AP-01
+
+Especificación detallada bajo el estándar DOSW con tipos reales y sin elementos de UI:
+* **Código:** `AP-01`
+* **Nombre:** *Registrar misión de transporte de muestra*
+* **Actor:** *Operador Hídrico*
+* **Entradas:** `droneAsignado: DroneAcuatico(id, modelo, bateria, disponible, zona)`, `puntoPartida: String`, `puntoLlegada: String`, `tipoCarga: Enum(MUESTRA_AGUA, SENSOR, PAQUETE_LIGERO)`
+* **Salidas:** `codigoMision: String`, `misionRegistrada: Mision(...)`
+* **Flujos Alternos:** Drone con batería $< 35\%$ y zona de destino no autorizada / idéntica a partida.
+* **Reglas de Negocio:** RN-01 (batería $\ge 35\%$ y sin misiones simultáneas) y RN-02 (coherencia de ruta entre zonas ECI).
+
+> Plantilla completa disponible en: [`docs/plantilla-dosw-ap01.md`](../docs/plantilla-dosw-ap01.md)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
@@ -201,4 +216,5 @@ Desde la raíz del repositorio:
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
 
