@@ -178,6 +178,21 @@ classDiagram
 
 ---
 
+## 📋 Requisitos y Priorización MoSCoW (Reto Requisitos)
+
+| ID | Tipo | Descripción | MoSCoW | Justificación (1 oración) |
+|---|---|---|---|---|
+| **RF-01** | Funcional | Consulta de drones disponibles con batería $\ge 35\%$ | **Must Have** | Es imprescindible para que el operador conozca qué unidades pueden despegar antes de cualquier misión. |
+| **RF-02** | Funcional | Registro y asignación manual de misión validada | **Must Have** | Es la funcionalidad central que justifica la existencia del sistema de transporte en el campus. |
+| **RF-03** | Funcional | Filtrado de drones por zona hídrica | **Should Have** | Optimiza la toma de decisiones al priorizar drones cercanos, aunque la operación básica puede subsistir sin él. |
+| **RNF-01** | No Funcional | Tiempo de respuesta en consulta $\le 200\text{ ms}$ | **Must Have** | Garantiza la fluidez requerida para que el operador atienda solicitudes sin bloqueos perceptibles en consola. |
+| **RNF-02** | No Funcional | $100\%$ de validación de integridad inmutable al construir | **Must Have** | Impide que se inicien misiones con datos incompletos o drones inactivos que pongan en riesgo la carga. |
+| **RNF-03** | No Funcional | Desacoplamiento de persistencia con pruebas $\le 1.5\text{ s}$ | **Should Have** | Facilita la evolución y mantenibilidad hacia persistencia externa en niveles futuros sin frenar el MVP. |
+
+> Documento completo de especificación disponible en: [`docs/requisitos-moscow-piplup.md`](../docs/requisitos-moscow-piplup.md)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
@@ -186,3 +201,4 @@ Desde la raíz del repositorio:
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
