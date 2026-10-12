@@ -265,7 +265,9 @@ Representación formal de las interacciones entre los 3 actores y los casos de u
 
 ## 🖥️ Mocks de Interfaz con IA — 3 Estados del Panel (Reto 11)
 
-Diseño de las pantallas del operador hídrico basado en la identidad visual de AquaPort y los datos de telemetría de los 4 drones del MVP:
+🌐 **Prototipo Interactivo de la Estación de Control:**  
+Puedes abrir directamente en el navegador el archivo interactivo del centro de control generado:  
+👉 [`docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html`](<../docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html>)
 
 ### 1. Estado Normal (Flota Operativa Mixta)
 *Visualización estándar con drones disponibles, en misión y en base de recarga:*  
@@ -285,7 +287,8 @@ Diseño de las pantallas del operador hídrico basado en la identidad visual de 
 * **#8 Minimalismo:** Enfoque exclusivo en ID, batería, estado y zona.
 * **#9 Diagnóstico y recuperación de errores:** Mensajes explícitos y acciones de contingencia claras.
 
-> Prompts completos y referencias industriales en: [`docs/mocks-ia-estados-panel.md`](../docs/mocks-ia-estados-panel.md)
+> Prompts completos y referencias industriales en: [`docs/mocks-ia-estados-panel.md`](../docs/mocks-ia-estados-panel.md)  
+> Archivo HTML ejecutable en: [`docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html`](<../docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html>)
 
 ---
 
