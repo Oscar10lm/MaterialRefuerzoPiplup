@@ -238,6 +238,8 @@ Estructura jerárquica ágil configurada para el MVP:
     * **Subtareas Técnicas:** Validación en `ValidadorMision`, construcción en `Mision.Builder`, persistencia y notificación en `RegistradorMisiones`.
   * **HU-03:** *Como operador hídrico, quiero cancelar una misión en estado PENDIENTE, para corregir asignaciones erróneas.*
 
+![img.png](../docs/images/jiraimg1.png)
+
 > Especificación completa y guía de Jira en: [`docs/agilismo-jira-piplup.md`](../docs/agilismo-jira-piplup.md)
 
 ---
