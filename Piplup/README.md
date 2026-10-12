@@ -263,10 +263,38 @@ Representación formal de las interacciones entre los 3 actores y los casos de u
 
 ---
 
+## 🖥️ Mocks de Interfaz con IA — 3 Estados del Panel (Reto 11)
+
+🌐 **Prototipo Interactivo de la Estación de Control:**  
+Puedes abrir directamente en el navegador el archivo interactivo del centro de control generado:  
+👉 [`docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html`](<../docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html>)
+
+### 1. Estado Normal (Flota Operativa Mixta)
+*Visualización estándar con drones disponibles, en misión y en base de recarga:*  
+![Mock Estado Normal](../docs/images/mock-estado-normal.png)
+
+### 2. Estado de Alerta (Drone en Estado FALLO Crítico)
+*Detección de anomalía, banner superior y tarjeta destacada en rojo con acciones de rescate:*  
+![Mock Estado Alerta](../docs/images/mock-estado-alerta.png)
+
+### 3. Estado Vacío (Toda la Flota en Misión)
+*0 drones libres, bloqueo preventivo de asignaciones e indicador de próxima liberación:*  
+![Mock Estado Vacío](../docs/images/mock-estado-vacio.png)
+
+### 🧭 Heurísticas de Nielsen Cumplidas
+* **#1 Visibilidad del estado:** El operador distingue el estado de la flota en menos de 2 segundos.
+* **#5 Prevención de errores:** Los drones sin carga o la falta de flota bloquean proactivamente los botones de acción (`disabled`).
+* **#8 Minimalismo:** Enfoque exclusivo en ID, batería, estado y zona.
+* **#9 Diagnóstico y recuperación de errores:** Mensajes explícitos y acciones de contingencia claras.
+
+> Prompts completos y referencias industriales en: [`docs/mocks-ia-estados-panel.md`](../docs/mocks-ia-estados-panel.md)  
+> Archivo HTML ejecutable en: [`docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html`](<../docs/AquaPort — Fleet Control Station – Monitoreo de Flota Acuática.html>)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
-
 
 ```powershell
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
