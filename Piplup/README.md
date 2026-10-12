@@ -85,14 +85,6 @@ List<DroneAcuatico> flota = List.of(
 
 Resuelve el problema de constructores telescópicos con múltiples parámetros ambiguos, garantizando **inmutabilidad** y **validación estricta en el método `build()`**.
 
-### ⚠️ El problema sin Builder
-```java
-// Orden propenso a errores y valores inválidos silenciosos:
-Mision m = new Mision("M-001", drone, "Embalse Norte", "Laboratorio Hídrico",
-                       TipoCarga.MUESTRA_AGUA, EstadoMision.PENDIENTE);
-```
-
-### ✅ Solución con `Mision.Builder` y Fluent API
 ```java
 Mision mision = new Mision.Builder()
     .id("M-001")
@@ -104,22 +96,93 @@ Mision mision = new Mision.Builder()
     .build(); // Lanza IllegalStateException si algún campo es inválido o el drone no está disponible
 ```
 
-### 🛡 Validaciones implementadas en `build()`:
-1. `id` no nulo ni en blanco.
-2. `puntoPartida` no nulo ni en blanco.
-3. `puntoLlegada` no nulo ni en blanco.
-4. `drone` no nulo.
-5. **`drone.disponible() == true`** en el momento de la construcción (impide asignar drones ocupados o en avería).
-6. `tipoCarga` no nulo.
-7. `estado` no nulo (por defecto `EstadoMision.PENDIENTE`).
+---
+
+## 🏛 Reto Arquitectura — Principios SRP y DIP en el Núcleo
+
+### 1. Principio de Responsabilidad Única (SRP)
+En lugar de un `GestorMision` monolítico con múltiples motivos para cambiar, el sistema separa las responsabilidades en componentes especializados:
+
+* **`RegistradorMisiones`**: Orquesta el registro y las consultas de misiones.
+* **`ValidadorMision`**: Encargado exclusivamente de las políticas y reglas de negocio operativas.
+* **`NotificadorOperador`**: Encargado exclusivamente de emitir mensajes, alertas y reportes al operador.
+
+### 2. Principio de Inversión de Dependencias (DIP)
+`RegistradorMisiones` no se acopla a ningún almacenamiento concreto (como `BaseDatosLocal` o mapas en memoria directos). Depende de la interfaz abstracta:
+
+```java
+public interface RepositorioMisiones {
+    void guardar(Mision mision);
+    Optional<Mision> buscarPorId(String id);
+    List<Mision> obtenerTodas();
+    boolean existePorId(String id);
+}
+```
+
+La implementación concreta (`RepositorioMisionesEnMemoria`) se suministra mediante **Constructor Injection**:
+
+```java
+RepositorioMisiones repo = new RepositorioMisionesEnMemoria();
+ValidadorMision validador = new ValidadorMision();
+NotificadorOperador notificador = new NotificadorOperador();
+
+RegistradorMisiones registrador = new RegistradorMisiones(repo, validador, notificador);
+```
+
+### 3. Diagrama de Clases (UML)
+
+```mermaid
+classDiagram
+    class RepositorioMisiones {
+        <<interface>>
+        +guardar(Mision mision) void
+        +buscarPorId(String id) Optional~Mision~
+        +obtenerTodas() List~Mision~
+        +existePorId(String id) boolean
+    }
+
+    class RepositorioMisionesEnMemoria {
+        -Map~String, Mision~ almacenamiento
+        +guardar(Mision mision) void
+        +buscarPorId(String id) Optional~Mision~
+        +obtenerTodas() List~Mision~
+        +existePorId(String id) boolean
+    }
+
+    class ValidadorMision {
+        -int BATERIA_MINIMA_DESPEGUE
+        +validar(Mision mision) void
+    }
+
+    class NotificadorOperador {
+        +notificarMisionRegistrada(Mision mision) void
+        +notificarAdvertencia(String mensaje) void
+        +notificarFallo(String mensaje) void
+    }
+
+    class RegistradorMisiones {
+        -RepositorioMisiones repositorio
+        -ValidadorMision validador
+        -NotificadorOperador notificador
+        +RegistradorMisiones(RepositorioMisiones, ValidadorMision, NotificadorOperador)
+        +registrarMision(Mision mision) void
+        +consultarMisionPorId(String id) Optional~Mision~
+        +consultarTodasLasMisiones() List~Mision~
+    }
+
+    RepositorioMisiones <|.. RepositorioMisionesEnMemoria : implementa
+    RegistradorMisiones --> RepositorioMisiones : depende de abstracción (DIP)
+    RegistradorMisiones --> ValidadorMision : delega reglas (SRP)
+    RegistradorMisiones --> NotificadorOperador : delega avisos (SRP)
+```
 
 ---
 
-## 💻 Compilación y Ejecución
+## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
 
 ```powershell
-javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
+javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```

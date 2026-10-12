@@ -4,25 +4,29 @@ import aquaport.model.DroneAcuatico;
 import aquaport.model.EstadoMision;
 import aquaport.model.Mision;
 import aquaport.model.TipoCarga;
+import aquaport.repository.RepositorioMisiones;
+import aquaport.repository.RepositorioMisionesEnMemoria;
 import aquaport.service.ConsultorFlota;
+import aquaport.service.NotificadorOperador;
+import aquaport.service.RegistradorMisiones;
+import aquaport.service.ValidadorMision;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Punto de entrada para el sistema AquaPort (Nivel Piplup).
+ * 
  * Demuestra:
  *  - Reto 01: ConsultorFlota mediante Streams & Lambdas.
  *  - Reto 03: Construcción validada de misiones con Patrón Builder.
+ *  - Reto SRP & DIP: Arquitectura desacoplada en el núcleo operativo.
  */
 public class Main {
 
     public static void main(String[] args) {
         imprimirEncabezadoGeneral();
 
-        // ---------------------------------------------------------------------
-        // 1. FLOTA BASE OFICIAL (Reto 01)
-        // ---------------------------------------------------------------------
+        // Flota base oficial
         List<DroneAcuatico> flota = List.of(
             new DroneAcuatico("AR-01", "Aqua-Ranger 100", 92, true,  "Embalse Norte"),
             new DroneAcuatico("AR-02", "Aqua-Ranger 100", 45, true,  "Canal Central"),
@@ -32,6 +36,7 @@ public class Main {
 
         ejecutarDemostracionReto01(flota);
         ejecutarDemostracionReto03(flota);
+        ejecutarDemostracionRetoSrpDip(flota);
 
         imprimirPieGeneral();
     }
@@ -42,27 +47,20 @@ public class Main {
         System.out.println("╚═══════════════════════════════════════════════════════════════════════════════╝");
 
         imprimirFlota(flota);
-
         ConsultorFlota consultor = new ConsultorFlota();
 
-        // Consulta 1
         imprimirSubtitulo("1. Drones disponibles con batería >= 35% (descendente)");
-        consultor.obtenerDronesDisponiblesConBateriaSuficiente(flota)
-                .forEach(d -> System.out.println("   [✓] " + d));
+        consultor.obtenerDronesDisponiblesConBateriaSuficiente(flota).forEach(d -> System.out.println("   [✓] " + d));
 
-        // Consulta 2
         imprimirSubtitulo("2. Solo IDs de drones disponibles");
         System.out.println("   Resultado: " + consultor.obtenerIdsDronesDisponibles(flota));
 
-        // Consulta 3
         imprimirSubtitulo("3. ¿Existe algún drone disponible con batería >= 35%?");
         System.out.println("   Resultado: " + (consultor.existeDroneDisponibleConBateriaSuficiente(flota) ? "SÍ (true)" : "NO (false)"));
 
-        // Consulta 4
         imprimirSubtitulo("4. Total de drones disponibles");
         System.out.println("   Resultado: " + consultor.contarDronesDisponibles(flota) + " drones");
 
-        // Consulta 5
         imprimirSubtitulo("5. Drone con mayor batería");
         consultor.obtenerDroneConMayorBateria(flota)
                 .ifPresentOrElse(d -> System.out.println("   Resultado: " + d), () -> System.out.println("   Flota vacía"));
@@ -73,10 +71,9 @@ public class Main {
         System.out.println("║               RETO 03: PATRÓN BUILDER PARA MISIONES VÁLIDAS                  ║");
         System.out.println("╚═══════════════════════════════════════════════════════════════════════════════╝");
 
-        DroneAcuatico droneDisponible = flota.get(0); // AR-01 (disponible = true)
-        DroneAcuatico droneOcupado = flota.get(2);    // AR-03 (disponible = false)
+        DroneAcuatico droneDisponible = flota.get(0); // AR-01
+        DroneAcuatico droneOcupado = flota.get(2);    // AR-03
 
-        // Caso de éxito: Construcción válida con Builder
         imprimirSubtitulo("CASO 1 [EXITOSO]: Construcción de Misión con datos válidos");
         try {
             Mision misionValida = new Mision.Builder()
@@ -87,14 +84,11 @@ public class Main {
                     .tipoCarga(TipoCarga.MUESTRA_AGUA)
                     .estado(EstadoMision.PENDIENTE)
                     .build();
-
-            System.out.println(" ✔ Misión construida con éxito:");
-            System.out.println(misionValida);
+            System.out.println(" ✔ Misión construida con éxito:\n" + misionValida);
         } catch (IllegalStateException e) {
             System.err.println(" [!] Error inesperado: " + e.getMessage());
         }
 
-        // Caso de validación 1: Asignar un drone no disponible
         imprimirSubtitulo("CASO 2 [VALIDACIÓN]: Intento de asignar Drone NO DISPONIBLE (AR-03)");
         try {
             new Mision.Builder()
@@ -104,27 +98,66 @@ public class Main {
                     .puntoLlegada("Canal Central")
                     .tipoCarga(TipoCarga.SENSOR)
                     .build();
-            System.err.println(" [!] ERROR: El Builder debió rechazar el drone no disponible.");
         } catch (IllegalStateException e) {
-            System.out.println(" [X] Excepción capturada exitosamente:");
-            System.out.println("     ➜ " + e.getMessage());
+            System.out.println(" [X] Excepción capturada exitosamente:\n     ➜ " + e.getMessage());
         }
+    }
 
-        // Caso de validación 2: Campos obligatorios faltantes / nulos
-        imprimirSubtitulo("CASO 3 [VALIDACIÓN]: Intento de construir misión sin punto de llegada");
+    private static void ejecutarDemostracionRetoSrpDip(List<DroneAcuatico> flota) {
+        System.out.println("\n\n╔═══════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                 RETO ARQUITECTURA: PRINCIPIOS SRP Y DIP EN NÚCLEO             ║");
+        System.out.println("╚═══════════════════════════════════════════════════════════════════════════════╝");
+
+        // Configuración de dependencias (DIP: Inyección por constructor)
+        RepositorioMisiones repositorio = new RepositorioMisionesEnMemoria();
+        ValidadorMision validador = new ValidadorMision();
+        NotificadorOperador notificador = new NotificadorOperador();
+
+        RegistradorMisiones registrador = new RegistradorMisiones(repositorio, validador, notificador);
+
+        DroneAcuatico drone1 = flota.get(0); // AR-01 (92%, disponible)
+        DroneAcuatico drone2 = flota.get(1); // AR-02 (45%, disponible)
+
+        // CASO 1: Registro exitoso
+        imprimirSubtitulo("CASO 1 [SRP/DIP]: Registro exitoso de misión mediante servicios desacoplados");
+        Mision mision1 = new Mision.Builder()
+                .id("MIS-101")
+                .drone(drone1)
+                .puntoPartida("Embalse Norte")
+                .puntoLlegada("Laboratorio Hídrico")
+                .tipoCarga(TipoCarga.MUESTRA_AGUA)
+                .build();
+        registrador.registrarMision(mision1);
+
+        Mision mision2 = new Mision.Builder()
+                .id("MIS-102")
+                .drone(drone2)
+                .puntoPartida("Canal Central")
+                .puntoLlegada("Punto Ribereño Este")
+                .tipoCarga(TipoCarga.SENSOR)
+                .build();
+        registrador.registrarMision(mision2);
+
+        // CASO 2: Validación de regla de negocio violada (partida == llegada)
+        imprimirSubtitulo("CASO 2 [SRP]: Rechazo por regla de negocio (origen igual a destino)");
         try {
-            new Mision.Builder()
-                    .id("M-003")
-                    .drone(droneDisponible)
+            Mision misionInvalidaRuta = new Mision.Builder()
+                    .id("MIS-103")
+                    .drone(drone1)
                     .puntoPartida("Embalse Norte")
-                    // puntoLlegada omitido deliberadamente
+                    .puntoLlegada("Embalse Norte") // Mismo punto
                     .tipoCarga(TipoCarga.PAQUETE_LIGERO)
                     .build();
-            System.err.println(" [!] ERROR: El Builder debió rechazar el puntoLlegada nulo/vacío.");
+            registrador.registrarMision(misionInvalidaRuta);
         } catch (IllegalStateException e) {
-            System.out.println(" [X] Excepción capturada exitosamente:");
-            System.out.println("     ➜ " + e.getMessage());
+            System.out.println(" [X] Regla capturada por ValidadorMision (SRP):\n     ➜ " + e.getMessage());
         }
+
+        // Consulta de misiones en el repositorio
+        imprimirSubtitulo("CONSULTA FINAL: Misiones persistidas en RepositorioMisiones (DIP)");
+        List<Mision> todas = registrador.consultarTodasLasMisiones();
+        System.out.println(" Total en repositorio: " + todas.size());
+        todas.forEach(m -> System.out.println("   • ID: " + m.getId() + " | Drone: " + m.getDrone().id() + " | Ruta: " + m.getPuntoPartida() + " -> " + m.getPuntoLlegada()));
     }
 
     private static void imprimirEncabezadoGeneral() {
