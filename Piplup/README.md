@@ -6,7 +6,7 @@ Sistema de drones acuáticos autónomos de la **Escuela Colombiana de Ingenierí
 
 ## 📌 Contexto del Dominio
 - **Flota actual:** 4 drones acuáticos modelo `Aqua-Ranger 100`.
-- **Carga:** Muestras de agua y sensores ligeros.
+- **Carga:** Muestras de agua, sensores ligeros y paquetes de reactivos.
 - **Zonas:** Embalse Norte, Canal Central, Laguna Sur, Punto Ribereño Este y Laboratorio Hídrico.
 
 ---
@@ -26,11 +26,9 @@ List<DroneAcuatico> flota = List.of(
 );
 ```
 
----
+### 🔍 Explicación Visual de los 5 Streams
 
-## 🔍 Explicación Visual de los 5 Streams
-
-### 1. Drones disponibles con batería ≥ 35% ordenados descendentemente
+#### 1. Drones disponibles con batería ≥ 35% ordenados descendentemente
 **Firma:** `List<DroneAcuatico> obtenerDronesDisponiblesConBateriaSuficiente(List<DroneAcuatico> flota)`
 ```text
   flota (List<DroneAcuatico>)
@@ -42,7 +40,7 @@ List<DroneAcuatico> flota = List.of(
     └──> toList()                                         [Retorna lista inmutable]
 ```
 
-### 2. Solo IDs de drones disponibles
+#### 2. Solo IDs de drones disponibles
 **Firma:** `List<String> obtenerIdsDronesDisponibles(List<DroneAcuatico> flota)`
 ```text
   flota (List<DroneAcuatico>)
@@ -53,7 +51,7 @@ List<DroneAcuatico> flota = List.of(
     └──> toList()                                         [Retorna: ["AR-01", "AR-02", "AR-04"]]
 ```
 
-### 3. Existencia de drone disponible con batería ≥ 35%
+#### 3. Existencia de drone disponible con batería ≥ 35%
 **Firma:** `boolean existeDroneDisponibleConBateriaSuficiente(List<DroneAcuatico> flota)`
 ```text
   flota (List<DroneAcuatico>)
@@ -62,7 +60,7 @@ List<DroneAcuatico> flota = List.of(
     └──> anyMatch(d -> d.disponible() && d.bateria() >= 35) [Short-circuit: retorna true en AR-01]
 ```
 
-### 4. Conteo de drones disponibles
+#### 4. Conteo de drones disponibles
 **Firma:** `long contarDronesDisponibles(List<DroneAcuatico> flota)`
 ```text
   flota (List<DroneAcuatico>)
@@ -72,7 +70,7 @@ List<DroneAcuatico> flota = List.of(
     └──> count()                                          [Retorna: 3L]
 ```
 
-### 5. Drone con mayor nivel de batería
+#### 5. Drone con mayor nivel de batería
 **Firma:** `Optional<DroneAcuatico> obtenerDroneConMayorBateria(List<DroneAcuatico> flota)`
 ```text
   flota (List<DroneAcuatico>)
@@ -83,7 +81,41 @@ List<DroneAcuatico> flota = List.of(
 
 ---
 
-## 💻 Compilación y Ejecución Manual
+## 🛠 Reto 03 — Patrón Creacional Builder (`Mision.Builder`)
+
+Resuelve el problema de constructores telescópicos con múltiples parámetros ambiguos, garantizando **inmutabilidad** y **validación estricta en el método `build()`**.
+
+### ⚠️ El problema sin Builder
+```java
+// Orden propenso a errores y valores inválidos silenciosos:
+Mision m = new Mision("M-001", drone, "Embalse Norte", "Laboratorio Hídrico",
+                       TipoCarga.MUESTRA_AGUA, EstadoMision.PENDIENTE);
+```
+
+### ✅ Solución con `Mision.Builder` y Fluent API
+```java
+Mision mision = new Mision.Builder()
+    .id("M-001")
+    .drone(droneDisponible)
+    .puntoPartida("Embalse Norte")
+    .puntoLlegada("Laboratorio Hídrico")
+    .tipoCarga(TipoCarga.MUESTRA_AGUA)
+    .estado(EstadoMision.PENDIENTE)
+    .build(); // Lanza IllegalStateException si algún campo es inválido o el drone no está disponible
+```
+
+### 🛡 Validaciones implementadas en `build()`:
+1. `id` no nulo ni en blanco.
+2. `puntoPartida` no nulo ni en blanco.
+3. `puntoLlegada` no nulo ni en blanco.
+4. `drone` no nulo.
+5. **`drone.disponible() == true`** en el momento de la construcción (impide asignar drones ocupados o en avería).
+6. `tipoCarga` no nulo.
+7. `estado` no nulo (por defecto `EstadoMision.PENDIENTE`).
+
+---
+
+## 💻 Compilación y Ejecución
 
 Desde la raíz del repositorio:
 

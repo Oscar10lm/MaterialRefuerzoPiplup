@@ -1,22 +1,28 @@
 package aquaport;
 
 import aquaport.model.DroneAcuatico;
+import aquaport.model.EstadoMision;
+import aquaport.model.Mision;
+import aquaport.model.TipoCarga;
 import aquaport.service.ConsultorFlota;
 
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Punto de entrada para el Reto 01 — AquaPort (Nivel Piplup).
- * 
- * Ejecuta y presenta visualmente los resultados de las 5 consultas sobre la flota de prueba.
+ * Punto de entrada para el sistema AquaPort (Nivel Piplup).
+ * Demuestra:
+ *  - Reto 01: ConsultorFlota mediante Streams & Lambdas.
+ *  - Reto 03: Construcción validada de misiones con Patrón Builder.
  */
 public class Main {
 
     public static void main(String[] args) {
-        imprimirEncabezado();
+        imprimirEncabezadoGeneral();
 
-        // 1. Definición de la flota de prueba según enunciado oficial
+        // ---------------------------------------------------------------------
+        // 1. FLOTA BASE OFICIAL (Reto 01)
+        // ---------------------------------------------------------------------
         List<DroneAcuatico> flota = List.of(
             new DroneAcuatico("AR-01", "Aqua-Ranger 100", 92, true,  "Embalse Norte"),
             new DroneAcuatico("AR-02", "Aqua-Ranger 100", 45, true,  "Canal Central"),
@@ -24,77 +30,123 @@ public class Main {
             new DroneAcuatico("AR-04", "Aqua-Ranger 100", 73, true,  "Punto Ribereño Este")
         );
 
-        imprimirFlotaInicial(flota);
+        ejecutarDemostracionReto01(flota);
+        ejecutarDemostracionReto03(flota);
+
+        imprimirPieGeneral();
+    }
+
+    private static void ejecutarDemostracionReto01(List<DroneAcuatico> flota) {
+        System.out.println("\n╔═══════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║                    RETO 01: CONSULTOR FLOTA CON STREAMS                       ║");
+        System.out.println("╚═══════════════════════════════════════════════════════════════════════════════╝");
+
+        imprimirFlota(flota);
 
         ConsultorFlota consultor = new ConsultorFlota();
 
-        // =====================================================================
-        // CONSULTA 1: Drones disponibles con batería >= 35% ordenados desc.
-        // =====================================================================
-        imprimirSeparador("CONSULTA 1: Drones disponibles (batería >= 35%) ordenados de mayor a menor batería");
-        System.out.println("  Lógica: stream() -> filter(disponible) -> filter(bateria >= 35) -> sorted(desc) -> toList()");
-        List<DroneAcuatico> disponiblesAptos = consultor.obtenerDronesDisponiblesConBateriaSuficiente(flota);
-        disponiblesAptos.forEach(d -> System.out.println("   [✓] " + d));
+        // Consulta 1
+        imprimirSubtitulo("1. Drones disponibles con batería >= 35% (descendente)");
+        consultor.obtenerDronesDisponiblesConBateriaSuficiente(flota)
+                .forEach(d -> System.out.println("   [✓] " + d));
 
-        // =====================================================================
-        // CONSULTA 2: Solo IDs de drones disponibles
-        // =====================================================================
-        imprimirSeparador("CONSULTA 2: Solo IDs de drones disponibles (List<String>)");
-        System.out.println("  Lógica: stream() -> filter(disponible) -> map(DroneAcuatico::id) -> toList()");
-        List<String> idsDisponibles = consultor.obtenerIdsDronesDisponibles(flota);
-        System.out.println("   Resultado: " + idsDisponibles);
+        // Consulta 2
+        imprimirSubtitulo("2. Solo IDs de drones disponibles");
+        System.out.println("   Resultado: " + consultor.obtenerIdsDronesDisponibles(flota));
 
-        // =====================================================================
-        // CONSULTA 3: ¿Existe algún drone disponible con batería >= 35%?
-        // =====================================================================
-        imprimirSeparador("CONSULTA 3: ¿Existe algún drone disponible con batería >= 35%?");
-        System.out.println("  Lógica: stream() -> anyMatch(disponible && bateria >= 35)");
-        boolean existeApto = consultor.existeDroneDisponibleConBateriaSuficiente(flota);
-        System.out.println("   Resultado: " + (existeApto ? "SÍ (true) — Hay al menos un drone listo para operar" : "NO (false)"));
+        // Consulta 3
+        imprimirSubtitulo("3. ¿Existe algún drone disponible con batería >= 35%?");
+        System.out.println("   Resultado: " + (consultor.existeDroneDisponibleConBateriaSuficiente(flota) ? "SÍ (true)" : "NO (false)"));
 
-        // =====================================================================
-        // CONSULTA 4: Contar cuántos drones están disponibles
-        // =====================================================================
-        imprimirSeparador("CONSULTA 4: Total de drones actualmente disponibles");
-        System.out.println("  Lógica: stream() -> filter(disponible) -> count()");
-        long totalDisponibles = consultor.contarDronesDisponibles(flota);
-        System.out.println("   Resultado: " + totalDisponibles + " drones disponibles");
+        // Consulta 4
+        imprimirSubtitulo("4. Total de drones disponibles");
+        System.out.println("   Resultado: " + consultor.contarDronesDisponibles(flota) + " drones");
 
-        // =====================================================================
-        // CONSULTA 5: Drone con mayor batería de toda la flota
-        // =====================================================================
-        imprimirSeparador("CONSULTA 5: Drone con mayor batería de toda la flota (Optional<DroneAcuatico>)");
-        System.out.println("  Lógica: stream() -> max(Comparator.comparingInt(bateria))");
-        Optional<DroneAcuatico> mayorBateria = consultor.obtenerDroneConMayorBateria(flota);
-        mayorBateria.ifPresentOrElse(
-            d -> System.out.println("   Resultado: " + d),
-            () -> System.out.println("   Resultado: Flota vacía")
-        );
-
-        imprimirPie();
+        // Consulta 5
+        imprimirSubtitulo("5. Drone con mayor batería");
+        consultor.obtenerDroneConMayorBateria(flota)
+                .ifPresentOrElse(d -> System.out.println("   Resultado: " + d), () -> System.out.println("   Flota vacía"));
     }
 
-    private static void imprimirEncabezado() {
+    private static void ejecutarDemostracionReto03(List<DroneAcuatico> flota) {
+        System.out.println("\n\n╔═══════════════════════════════════════════════════════════════════════════════╗");
+        System.out.println("║               RETO 03: PATRÓN BUILDER PARA MISIONES VÁLIDAS                  ║");
+        System.out.println("╚═══════════════════════════════════════════════════════════════════════════════╝");
+
+        DroneAcuatico droneDisponible = flota.get(0); // AR-01 (disponible = true)
+        DroneAcuatico droneOcupado = flota.get(2);    // AR-03 (disponible = false)
+
+        // Caso de éxito: Construcción válida con Builder
+        imprimirSubtitulo("CASO 1 [EXITOSO]: Construcción de Misión con datos válidos");
+        try {
+            Mision misionValida = new Mision.Builder()
+                    .id("M-001")
+                    .drone(droneDisponible)
+                    .puntoPartida("Embalse Norte")
+                    .puntoLlegada("Laboratorio Hídrico")
+                    .tipoCarga(TipoCarga.MUESTRA_AGUA)
+                    .estado(EstadoMision.PENDIENTE)
+                    .build();
+
+            System.out.println(" ✔ Misión construida con éxito:");
+            System.out.println(misionValida);
+        } catch (IllegalStateException e) {
+            System.err.println(" [!] Error inesperado: " + e.getMessage());
+        }
+
+        // Caso de validación 1: Asignar un drone no disponible
+        imprimirSubtitulo("CASO 2 [VALIDACIÓN]: Intento de asignar Drone NO DISPONIBLE (AR-03)");
+        try {
+            new Mision.Builder()
+                    .id("M-002")
+                    .drone(droneOcupado)
+                    .puntoPartida("Laguna Sur")
+                    .puntoLlegada("Canal Central")
+                    .tipoCarga(TipoCarga.SENSOR)
+                    .build();
+            System.err.println(" [!] ERROR: El Builder debió rechazar el drone no disponible.");
+        } catch (IllegalStateException e) {
+            System.out.println(" [X] Excepción capturada exitosamente:");
+            System.out.println("     ➜ " + e.getMessage());
+        }
+
+        // Caso de validación 2: Campos obligatorios faltantes / nulos
+        imprimirSubtitulo("CASO 3 [VALIDACIÓN]: Intento de construir misión sin punto de llegada");
+        try {
+            new Mision.Builder()
+                    .id("M-003")
+                    .drone(droneDisponible)
+                    .puntoPartida("Embalse Norte")
+                    // puntoLlegada omitido deliberadamente
+                    .tipoCarga(TipoCarga.PAQUETE_LIGERO)
+                    .build();
+            System.err.println(" [!] ERROR: El Builder debió rechazar el puntoLlegada nulo/vacío.");
+        } catch (IllegalStateException e) {
+            System.out.println(" [X] Excepción capturada exitosamente:");
+            System.out.println("     ➜ " + e.getMessage());
+        }
+    }
+
+    private static void imprimirEncabezadoGeneral() {
         System.out.println("================================================================================");
         System.out.println("  🌊 AQUAPORT — SISTEMA DE GESTIÓN DE FLOTA DE DRONES ACUÁTICOS (ECI)");
-        System.out.println("  💧 Nivel Piplup · Reto 01: Streams & Lambdas");
+        System.out.println("  💧 Nivel Piplup · Módulo Principal de Pruebas y Operaciones");
         System.out.println("================================================================================");
     }
 
-    private static void imprimirFlotaInicial(List<DroneAcuatico> flota) {
+    private static void imprimirFlota(List<DroneAcuatico> flota) {
         System.out.println("\n--- FLOTA BASE REGISTRADA (" + flota.size() + " DRONES) ---");
         flota.forEach(d -> System.out.println("   " + d));
     }
 
-    private static void imprimirSeparador(String titulo) {
-        System.out.println("\n--------------------------------------------------------------------------------");
-        System.out.println(" ▸ " + titulo);
-        System.out.println("--------------------------------------------------------------------------------");
+    private static void imprimirSubtitulo(String titulo) {
+        System.out.println("\n ▸ " + titulo);
+        System.out.println("   ─────────────────────────────────────────────────────────────────────────────");
     }
 
-    private static void imprimirPie() {
+    private static void imprimirPieGeneral() {
         System.out.println("\n================================================================================");
-        System.out.println("  ✔ Todas las consultas ejecutadas con éxito usando Streams puros.");
+        System.out.println("  ✔ Todas las validaciones y ejecuciones de AquaPort concluyeron con éxito.");
         System.out.println("================================================================================\n");
     }
 }
