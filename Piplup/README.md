@@ -225,14 +225,54 @@ El sistema de diseño de AquaPort está optimizado para estaciones de monitoreo 
 
 ---
 
+## 🏃 Agilismo y Backlog en Jira (Reto 09)
+
+Estructura jerárquica ágil configurada para el MVP:
+* **Épica:** `Digitalizar el monitoreo y reparto hídrico de la ECI mediante una flota de drones acuáticos supervisada`
+* **Feature:** `Gestión de la flota de drones acuáticos del campus`
+* **Historias de Usuario:**
+  * **HU-01:** *Como operador hídrico, quiero ver qué drones están disponibles y su nivel de batería para asignar la misión al drone más adecuado según la zona.*
+  * **HU-02 (Focal):** *Como operador hídrico, quiero registrar y asignar manualmente un drone a una misión de transporte, para autorizar el despacho seguro de muestras ambientales.*
+    * **Criterio 1:** Asignación exitosa con drone disponible y batería $\ge 35\%$.
+    * **Criterio 2:** Bloqueo preventivo con `IllegalStateException` si batería $< 35\%$ o drone no disponible.
+    * **Subtareas Técnicas:** Validación en `ValidadorMision`, construcción en `Mision.Builder`, persistencia y notificación en `RegistradorMisiones`.
+  * **HU-03:** *Como operador hídrico, quiero cancelar una misión en estado PENDIENTE, para corregir asignaciones erróneas.*
+
+![img.png](../docs/images/jiraimg1.png)
+
+> Especificación completa y guía de Jira en: [`docs/agilismo-jira-piplup.md`](../docs/agilismo-jira-piplup.md)
+
+---
+
+## 🎯 Diagrama de Casos de Uso UML (Reto 10)
+
+Representación formal de las interacciones entre los 3 actores y los casos de uso del sistema centrados en el requisito **AP-01**:
+
+![Diagrama de Casos de Uso](../docs/diagrama-cu-piplup.png)
+
+### 📌 Distinción Clave: `<<include>>` vs. `<<extend>>`
+
+* **`<<include>>` (Inclusión Obligatoria):**  
+  * *Relación:* `AP-01: Registrar Misión` $\xrightarrow{<<include>>}$ `Validar Disponibilidad y Batería del Drone`.  
+  * *Regla:* Se ejecuta **SIEMPRE** sin condición. El caso de uso base no puede completarse sin ejecutar previamente la validación.
+* **`<<extend>>` (Extensión Condicional):**  
+  * *Relación:* `Alertar Batería Crítica o Insuficiente` $\xrightarrow{<<extend>>}$ `AP-01: Registrar Misión`.  
+  * *Regla y Condición:* Se ejecuta **ÚNICAMENTE bajo una condición específica** *(batería $< 35\%$ o drone no disponible)* para interceptar el flujo normal y prevenir el despacho de la misión.
+
+> Archivo fuente PlantUML disponible en: [`docs/diagrama-cu-piplup.puml`](../docs/diagrama-cu-piplup.puml)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
+
 
 ```powershell
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
 
 
 
