@@ -1,0 +1,23 @@
+@startuml c4-contexto-piplup
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Diagrama de Contexto del Sistema (C4 Nivel 1) — AquaPort MVP (Piplup)
+
+Person(operador, "Operador Hídrico", "Personal técnico de la ECI encargado de coordinar rutas, registrar solicitudes y asignar drones manualmente a las misiones.")
+Person(solicitante, "Solicitante", "Investigador o laboratorista del campus que requiere el transporte hídrico de muestras ambientales o sensores.")
+Person(administrador, "Administrador ECI", "Responsable directivo que gestiona el inventario de la flota de drones y consulta reportes operativos.")
+
+System(aquaport, "AquaPort MVP", "Sistema central de drones acuáticos autónomos de la Escuela Colombiana de Ingeniería. Permite el monitoreo de la flota, validación de misiones y registro de eventos de entrega.")
+
+Rel(solicitante, aquaport, "Solicitud de transporte de muestra", "HTTPS / Formulario")
+Rel(aquaport, solicitante, "Código de misión generado", "Confirmación")
+
+Rel(operador, aquaport, "Solicitud de misión, asignación manual de drone", "Consola / UI")
+Rel(aquaport, operador, "Confirmación de asignación, estado de misión", "Eventos / Reportes")
+
+Rel(administrador, aquaport, "Gestiona flota, consulta reportes de estado", "Panel de Control")
+Rel(aquaport, administrador, "Métricas operativas y disponibilidad", "Reportes")
+
+@enduml
