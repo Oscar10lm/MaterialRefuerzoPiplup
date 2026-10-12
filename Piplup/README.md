@@ -225,6 +225,23 @@ El sistema de diseño de AquaPort está optimizado para estaciones de monitoreo 
 
 ---
 
+## 🏃 Agilismo y Backlog en Jira (Reto 09)
+
+Estructura jerárquica ágil configurada para el MVP:
+* **Épica:** `Digitalizar el monitoreo y reparto hídrico de la ECI mediante una flota de drones acuáticos supervisada`
+* **Feature:** `Gestión de la flota de drones acuáticos del campus`
+* **Historias de Usuario:**
+  * **HU-01:** *Como operador hídrico, quiero ver qué drones están disponibles y su nivel de batería para asignar la misión al drone más adecuado según la zona.*
+  * **HU-02 (Focal):** *Como operador hídrico, quiero registrar y asignar manualmente un drone a una misión de transporte, para autorizar el despacho seguro de muestras ambientales.*
+    * **Criterio 1:** Asignación exitosa con drone disponible y batería $\ge 35\%$.
+    * **Criterio 2:** Bloqueo preventivo con `IllegalStateException` si batería $< 35\%$ o drone no disponible.
+    * **Subtareas Técnicas:** Validación en `ValidadorMision`, construcción en `Mision.Builder`, persistencia y notificación en `RegistradorMisiones`.
+  * **HU-03:** *Como operador hídrico, quiero cancelar una misión en estado PENDIENTE, para corregir asignaciones erróneas.*
+
+> Especificación completa y guía de Jira en: [`docs/agilismo-jira-piplup.md`](../docs/agilismo-jira-piplup.md)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
@@ -233,6 +250,7 @@ Desde la raíz del repositorio:
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
 
 
 
