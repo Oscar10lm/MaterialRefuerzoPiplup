@@ -119,4 +119,29 @@ public class ConsultorFlota {
         return flota.stream()
                 .max(Comparator.comparingInt(DroneAcuatico::bateria));
     }
+
+    /**
+     * Consulta RF-03 (Should Have):
+     * Filtrar drones pertenecientes a una zona hídrica específica.
+     * 
+     * Pipeline visual:
+     *   flota (List)
+     *     │
+     *     ├──> stream()
+     *     ├──> filter(d.zona == zonaEspecificada)
+     *     └──> toList()
+     * 
+     * @param flota Lista de drones
+     * @param zona  Nombre de la zona hídrica a filtrar
+     * @return Lista de drones ubicados en la zona solicitada
+     */
+    public List<DroneAcuatico> filtrarDronesPorZona(List<DroneAcuatico> flota, String zona) {
+        if (zona == null || zona.isBlank()) {
+            return List.of();
+        }
+        return flota.stream()
+                .filter(drone -> zona.equalsIgnoreCase(drone.zona()))
+                .toList();
+    }
 }
+
