@@ -79,4 +79,32 @@ public class RegistradorMisiones {
     public List<Mision> consultarTodasLasMisiones() {
         return repositorio.obtenerTodas();
     }
+
+    /**
+     * HU-03: Cancela una misión registrada siempre que su estado sea PENDIENTE.
+     *
+     * @param id Identificador de la misión a cancelar
+     */
+    public void cancelarMisionPendiente(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("El ID de la misión a cancelar no puede ser nulo ni vacío.");
+        }
+
+        Mision mision = repositorio.buscarPorId(id)
+                .orElseThrow(() -> new IllegalStateException(
+                    String.format("No se encontró ninguna misión registrada con el ID '%s'.", id)
+                ));
+
+        if (mision.getEstado() != aquaport.model.EstadoMision.PENDIENTE) {
+            String error = String.format(
+                "No se puede cancelar la misión '%s' porque su estado actual es '%s' (solo PENDIENTE es cancelable).",
+                id, mision.getEstado()
+            );
+            notificador.notificarAdvertencia(error);
+            throw new IllegalStateException(error);
+        }
+
+        repositorio.eliminarPorId(id);
+        notificador.notificarAdvertencia(String.format("Misión [%s] cancelada por el operador. Drone liberado.", id));
+    }
 }

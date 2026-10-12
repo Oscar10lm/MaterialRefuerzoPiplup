@@ -44,4 +44,12 @@ public class RepositorioMisionesEnMemoria implements RepositorioMisiones {
         }
         return almacenamiento.containsKey(id);
     }
+
+    @Override
+    public boolean eliminarPorId(String id) {
+        if (id == null) {
+            return false;
+        }
+        return almacenamiento.remove(id) != null;
+    }
 }

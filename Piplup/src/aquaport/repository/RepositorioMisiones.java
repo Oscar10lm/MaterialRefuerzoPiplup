@@ -42,4 +42,12 @@ public interface RepositorioMisiones {
      * @return true si ya existe, false en caso contrario
      */
     boolean existePorId(String id);
+
+    /**
+     * Elimina una misión del repositorio por su identificador.
+     *
+     * @param id Identificador de la misión a eliminar
+     * @return true si fue eliminada, false si no existía
+     */
+    boolean eliminarPorId(String id);
 }
