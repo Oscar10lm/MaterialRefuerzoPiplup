@@ -208,6 +208,23 @@ Especificación detallada bajo el estándar DOSW con tipos reales y sin elemento
 
 ---
 
+## 🎨 Manual de Identidad Visual y UX/UI (Reto 08)
+
+El sistema de diseño de AquaPort está optimizado para estaciones de monitoreo continuo en entornos hídricos:
+* **Paleta:** Deep Abyssal Navy (`#0B132B`, fondo), Ocean Navy (`#1C2541`, cards), Bioluminescent Cyan (`#48CAE4`, acento primario).
+* **Estados del Drone:** Disponible (`#10B981` verde), En Misión (`#3B82F6` azul), Recargando (`#F59E0B` ámbar), Batería Crítica/Fallo (`#EF4444` rojo), Mantenimiento (`#64748B` gris).
+* **Tipografía:** `Inter` (UI general) y `JetBrains Mono` (IDs y telemetría).
+* **Heurísticas de Nielsen Verificadas:**
+  1. **#1 Visibilidad del estado:** Estado y batería identificables de un vistazo mediante colores y barras de progreso.
+  2. **#3 Control del usuario:** Capacidad de cancelar asignaciones erróneas en estado `PENDIENTE`.
+  3. **#5 Prevención de errores:** Deshabilitación visual proactiva de drones con batería $< 35\%$.
+  4. **#8 Diseño minimalista:** Foco exclusivo en los 4 parámetros clave de decisión para el operador.
+  5. **#9 Diagnóstico claro de errores:** Explicación técnica precisa de fallos con acciones de recuperación sugeridas.
+
+> Manual de identidad, prompt de IA y evaluación detallada en: [`docs/manual-identidad-ux-nielsen.md`](../docs/manual-identidad-ux-nielsen.md)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
@@ -216,5 +233,6 @@ Desde la raíz del repositorio:
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
 
 
