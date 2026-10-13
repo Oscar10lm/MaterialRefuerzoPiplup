@@ -680,6 +680,50 @@ flowchart LR
 
 ---
 
+## 🏃‍♂️ Reto 09: Agilismo y Planificación del Sprint en Jira
+
+> 📄 *Documentación completa del sprint disponible en: [`docs/agilismo-jira-sprint-prinplup.md`](file:///docs/agilismo-jira-sprint-prinplup.md)*
+
+### 1. Sprint Goal de la v2
+
+> **Sprint Goal:**  
+> *«Completar el asignador automático con Strategy y las alertas con Observer»*
+
+* **Compromiso del Sprint:** **21 Story Points (SP)** (Secuencia de Fibonacci: 1, 2, 3, 5, 8).
+* **Duración:** 2 semanas (10 días hábiles).
+
+---
+
+### 2. Product Backlog del Sprint (Historias de Usuario con Fibonacci)
+
+| ID | Tipo | Historia de Usuario | Story Points | Prioridad | Estado |
+|---|---|---|---|---|---|
+| **PRIN-01** | Story | Asignador automático de misiones mediante Patrón Strategy | **5 SP** | Highest | `IN PROGRESS` |
+| **PRIN-02** | Story | Notificación síncrona de eventos de fallo mediante Patrón Observer | **5 SP** | Highest | `DONE` |
+| **PRIN-03** | Story | Consulta reactiva a API de Condiciones Hídricas y filtrado de casco | **3 SP** | High | `IN REVIEW / QA` |
+| **PRIN-04** | Story | Fábrica polimórfica de 3 tipos de drones acuáticos (Factory Method) | **3 SP** | High | `DONE` |
+| **PRIN-05** | Task | Resolución de tensión AP-07 vs AP-08: Precedencia en misiones críticas | **3 SP** | High | `IN PROGRESS` |
+| **PRIN-06** | Story | Reintegración técnica y gestión de drones en estado FALLO/MANT | **2 SP** | Medium | `TO DO` |
+
+---
+
+### 3. Definition of Done (DoD) de la v2
+
+Para dar por concluida cualquier Historia de Usuario en este sprint, debe satisfacerse el $100\%$ del checklist:
+1. [✔] **Cero Warnings:** El código compila limpiamente sin advertencias del compilador.
+2. [✔] **Pruebas Unitarias:** La suite completa pasa al 100% en JUnit 5 y Mockito.
+3. [✔] **Cobertura JaCoCo:** Reporta **$\ge 80\%$ de line coverage** para las clases de la feature.
+4. [✔] **Pull Request Aprobado:** Revisión técnica formal (*Code Review*) aprobada por al menos un par.
+5. [✔] **Documentación Actualizada:** El diagrama de contexto C4 y la plantilla DOSW están sincronizados con los cambios.
+
+---
+
+### 4. Captura del Tablero Activo del Sprint en Jira
+
+![Jira Sprint Board](../docs/images/jira-sprint-board.png)
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
 La suite de pruebas contiene **35 pruebas unitarias** pasando al 100%:
