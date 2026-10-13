@@ -1,7 +1,5 @@
 package aquaport.model;
 
-import java.util.Objects;
-
 /**
  * Representa una misión de transporte asignada a un drone acuático en AquaPort.
  * 
