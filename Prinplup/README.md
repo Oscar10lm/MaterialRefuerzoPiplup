@@ -338,6 +338,157 @@ void ocp_cuartoTipoDeDrone_funcionaSinModificarAsignador() {
 
 ---
 
+## 🗺️ Reto 05: Diagrama de Contexto C4 (MVP v1 vs. v2 Prinplup)
+
+El **Diagrama de Contexto (Nivel 1 del Modelo C4)** establece las fronteras de software de AquaPort, identificando las personas (actores) que interactúan con él y los sistemas externos con los que se comunica en la infraestructura del campus de la Escuela Colombiana de Ingeniería Julio Garavito (ECI).
+
+> [!IMPORTANT]
+> **Regla clave del diagrama:** Toda flecha entre el sistema, los actores y los sistemas externos está rigurosamente etiquetada indicando **QUÉ datos específicos fluyen** y en **QUÉ dirección**.
+
+---
+
+### 1. Diagrama de Contexto — AquaPort MVP (v1 - Piplup)
+
+En la versión inicial (MVP), AquaPort operaba como un sistema autónomo cerrado y manual, enfocado en una flota de 4 drones sin integración con servicios externos.
+
+```mermaid
+flowchart TD
+    subgraph Actores_v1["👥 Actores del Sistema (v1)"]
+        SOL["🧑‍🔬 Solicitante<br/>(Investigador / Docente)"]
+        OPH["🧑‍✈️ Operador Hídrico<br/>(Personal de Operaciones)"]
+        ADM["👨‍💼 Administrador ECI<br/>(Gestión de Infraestructura)"]
+    end
+
+    SYS_V1["📦 Sistema AquaPort MVP (v1)<br/><i>Gestión manual de flota y registro en memoria</i>"]
+
+    SOL -->|"1. Envía solicitud de misión (origen, destino, prioridad, peso y tipo de carga)"| SYS_V1
+    SYS_V1 -->|"2. Retorna ID de misión, confirmación y estado de despacho"| SOL
+
+    OPH -->|"3. Consulta drones disponibles y asigna manualmente drone a misión"| SYS_V1
+    SYS_V1 -->|"4. Retorna listado de flota, nivel de batería y confirmación de asignación"| OPH
+
+    ADM -->|"5. Registra nuevos drones y actualiza inventario"| SYS_V1
+    SYS_V1 -->|"6. Retorna métricas básicas de uso y reportes de inventario"| ADM
+
+    style SYS_V1 fill:#1e3a8a,stroke:#3b82f6,stroke-width:3px,color:#ffffff
+    style Actores_v1 fill:#f8fafc,stroke:#94a3b8,stroke-width:2px
+```
+
+---
+
+### 2. Diagrama de Contexto — AquaPort v2 (Prinplup)
+
+En la **v2 (Prinplup)**, el sistema evoluciona hacia una **estación de control autónoma** que interactúa con un nuevo actor especializado (**Técnico de Mantenimiento**) y **3 sistemas externos** en red para la toma de decisiones automatizada en tiempo real.
+
+```mermaid
+flowchart TD
+    subgraph Actores_v2["👥 Actores del Sistema (v2)"]
+        SOL2["🧑‍🔬 Solicitante<br/><i>(Investigador / Laboratorista)</i>"]
+        OPH2["🧑‍✈️ Operador Hídrico<br/><i>(Supervisión y Contingencias)</i>"]
+        ADM2["👨‍💼 Administrador ECI<br/><i>(Gobierno y Políticas de Flota)</i>"]
+        TEC2["🧑‍🔧 Técnico de Mantenimiento<br/><i>(Diagnóstico y Reparación de Hardware)</i>"]
+    end
+
+    SYS_V2["🐧 Sistema AquaPort v2 (Prinplup)<br/><b>Fleet Control Station</b><br/><i>Asignación autónoma, selección óptima y gestión de incidentes</i>"]
+
+    subgraph Sistemas_Externos_v2["🌐 Sistemas Externos Integrados (v2)"]
+        API_HID["🌊 API Condiciones Hídricas<br/><i>Sensores limnológicos del campus</i>"]
+        CTR_ECI["🏢 Centro de Control ECI<br/><i>Torre de tráfico y logística del campus</i>"]
+        SIS_ALT["🚨 Sistema de Alertas<br/><i>Plataforma de alarmas y contingencias</i>"]
+    end
+
+    %% Flujos con Actores
+    SOL2 -->|"1. Solicitud de misión (origen, destino, prioridad, peso y tipo de carga)"| SYS_V2
+    SYS_V2 -->|"2. Confirmación de misión aceptada, drone asignado y telemetría de ruta"| SOL2
+
+    OPH2 -->|"3. Comandos de supervisión pasiva y anulación manual en contingencia"| SYS_V2
+    SYS_V2 -->|"4. Telemetría de 15 drones en tiempo real, mapa de flota y estado de misiones"| OPH2
+
+    ADM2 -->|"5. Actualización de políticas operativas, umbrales de batería y zonificación"| SYS_V2
+    SYS_V2 -->|"6. Reportes consolidados de utilización, KPIs y salud de la flota"| ADM2
+
+    SYS_V2 -->|"7. Órdenes de trabajo urgentes y código de diagnóstico ante estado FALLO"| TEC2
+    TEC2 -->|"8. Registro de mantenimiento completado y reincorporación a DISPONIBLE"| SYS_V2
+
+    %% Flujos con Sistemas Externos
+    SYS_V2 -->|"9. Consulta de condiciones hidrológicas por zona (ID zona, coordenadas)"| API_HID
+    API_HID -->|"10. Telemetría ambiental en tiempo real (nivel de agitación, profundidad, temperatura)"| SYS_V2
+
+    SYS_V2 -->|"11. Registro de plan de vuelo y solicitud de clearance de ruta acuática"| CTR_ECI
+    CTR_ECI -->|"12. Autorización de tránsito hídrico, ventana horaria y clearance de corredor"| SYS_V2
+
+    SYS_V2 -->|"13. Emisión de eventos de anomalía crítica (drone en FALLO, batería crítica < 20%)"| SIS_ALT
+    SIS_ALT -->|"14. Despacho multicanal de alarmas (SMS a brigadistas, sirenas de campus, push)"| CTR_ECI
+
+    style SYS_V2 fill:#0284c7,stroke:#0369a1,stroke-width:4px,color:#ffffff
+    style Actores_v2 fill:#f8fafc,stroke:#64748b,stroke-width:2px
+    style Sistemas_Externos_v2 fill:#f0fdf4,stroke:#22c55e,stroke-width:2px
+    style TEC2 fill:#fef3c7,stroke:#f59e0b,stroke-width:2px
+```
+
+---
+
+### 3. Matriz de Flujos de Datos Bidireccionales v2
+
+| Origen | Destino | Datos que Fluyen | Propósito Operacional en AquaPort |
+|---|---|---|---|
+| **Solicitante** | **AquaPort v2** | `PuntoPartida`, `PuntoLlegada`, `Prioridad`, `TipoCarga`, `PesoKg` | Solicitar un transporte o muestreo limnológico. |
+| **AquaPort v2** | **Solicitante** | `IdMision`, `EstadoMision`, `IdDroneAsignado`, `TiempoEstimado` | Confirmar y reportar el ciclo de vida de la misión. |
+| **Operador Hídrico** | **AquaPort v2** | Comandos de control, pausas de emergencia, override manual | Mantener supervisión humana de alto nivel sin asignación rutinaria. |
+| **AquaPort v2** | **Operador Hídrico** | Telemetría en vivo de 15 drones (batería, zona, estado, carga) | Monitoreo situacional del estado del campus en tiempo real. |
+| **Administrador ECI** | **AquaPort v2** | Políticas de prioridad, umbrales de corte, zonas permitidas | Gobierno y parametrización de la plataforma. |
+| **AquaPort v2** | **Administrador ECI** | Reportes de utilización, horas de operación, tasa de incidentes | Auditoría, planeación y sustentación de recursos. |
+| **AquaPort v2** | **Técnico Mantenimiento** | `IdDrone`, `Zona`, `MotivoFallo`, `DiagnosticoPreliminar` | Despachar orden de servicio inmediata cuando un drone entra en `FALLO`. |
+| **Técnico Mantenimiento** | **AquaPort v2** | Reporte de reparación, checklist técnico, cambio a `DISPONIBLE` | Devolver drones reparados al pool activo de asignación. |
+| **AquaPort v2** | **API Condiciones Hídricas** | `IdZona`, `CoordenadasGPS`, `Timestamp` | Consultar la viabilidad hidrológica del cuerpo de agua antes de asignar. |
+| **API Condiciones Hídricas** | **AquaPort v2** | `NivelAgitacion` (Calma/Agitada), `ProfundidadMetros`, `TemperaturaC` | Determinar si se requiere un `DroneSuperficial`, `Semisumergido` o `Buceador`. |
+| **AquaPort v2** | **Centro de Control ECI** | `PlanDeVuelo`, `CorredorNavegacion`, `PrioridadMision` | Registrar la misión institucional y solicitar derecho de paso acuático. |
+| **Centro de Control ECI** | **AquaPort v2** | `CodigoClearance`, `AprobacionRuta`, `VentanaHoraria` | Garantizar que no colisione con otras actividades náuticas o de mantenimiento. |
+| **AquaPort v2** | **Sistema de Alertas** | `IdAlerta`, `NivelAlerta` (CRITICA), `DroneAfectado`, `ZonaIncidente` | Notificar incidentes severos en caliente (batería crítica, fallo de motor). |
+
+---
+
+### 4. Cuadro Comparativo: ¿Qué Creció? vs. ¿Qué se Mantuvo?
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        EVOLUCIÓN ARQUITECTÓNICA: MVP (v1) → v2                         │
+├───────────────────────────────────────────┬────────────────────────────────────────────┤
+│               🌱 QUÉ CRECIÓ               │              ⚓ QUÉ SE MANTUVO              │
+├───────────────────────────────────────────┼────────────────────────────────────────────┤
+│ • Nuevo Actor Especializado:              │ • Propósito Central del Negocio:           │
+│   Incorporación del Técnico de Mantenimiento│   Monitoreo ambiental, recolección de      │
+│   para el ciclo de vida de fallas físicas.│   muestras y transporte hídrico en campus. │
+│                                           │                                            │
+│ • 3 Nuevos Sistemas Externos:             │ • Actores Primarios Fundamentales:         │
+│   - API Condiciones Hídricas (IoT en vivo)│   Solicitante, Operador Hídrico y          │
+│   - Centro de Control ECI (Clearance institucional)│   Administrador ECI continúan activos.     │
+│   - Sistema de Alertas (Notificación multicanal)│                                            │
+│                                           │ • Reglas de Seguridad Inviolables:         │
+│ • Cambio de Paradigma Operativo:          │   Reserva mínima de batería de despegue    │
+│   De asignación manual por operador a     │   (≥ 35%), control estricto de carga útil   │
+│   asignación autónoma algorítmica.        │   y validación previa de disponibilidad.   │
+│                                           │                                            │
+│ • Escala y Especialización de la Flota:   │ • Modelo de Dominio Nuclear:               │
+│   De 4 drones genéricos a 15 drones       │   Conceptos de Misión, Ruta, Prioridad,    │
+│   divididos en 3 subclases hidrológicas.  │   Zonas del campus y Estado del Drone.     │
+└───────────────────────────────────────────┴────────────────────────────────────────────┘
+```
+
+#### 📊 Detalle Analítico de la Transición
+
+1. **¿Qué creció?**
+   * **El ecosistema de integración:** El sistema dejó de ser una aplicación aislada para convertirse en un nodo central de un ecosistema interconectado con sensores ambientales (API de condiciones hídricas), autoridad de tráfico (Centro de Control) y plataformas de respuesta a emergencias (Sistema de Alertas).
+   * **El flujo de entrada de datos:** Ahora el sistema consume variables hidrológicas dinámicas (profundidad, agitación, corrientes) que condicionan la selección del hardware antes de despachar una misión.
+   * **El canal de soporte técnico:** La incorporación del *Técnico de Mantenimiento* cierra la brecha entre el software y el hardware físico: las fallas no quedan como simples registros mudos, sino que generan órdenes de servicio operativas.
+
+2. **¿Qué se mantuvo?**
+   * **La esencia funcional:** Garantizar el transporte confiable de cargas científicas y toma de muestras a lo largo del sistema lagunar de la Escuela.
+   * **El gobierno institucional:** El *Administrador ECI* mantiene el control sobre la flota y el *Operador Hídrico* conserva la potestad de veto e intervención humana en caso de emergencia.
+   * **Los invariantes de seguridad:** La integridad física de los drones y la preservación del cuerpo de agua permanecen como la máxima prioridad inmutable del diseño.
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
 La suite de pruebas contiene **33 pruebas unitarias** pasando al 100%:
