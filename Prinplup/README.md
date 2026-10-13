@@ -123,16 +123,79 @@ List<Mision> ordenadas = misiones.stream()
 
 ---
 
+## 🌿 GitHub y GitFlow en AquaPort v2 (Reto 02)
+
+Estrategia formal de ramas bajo el modelo **GitFlow** implementada para el ciclo de vida de la versión 2.0:
+
+```mermaid
+gitGraph
+   commit id: "MVP Piplup Aprobado" tag: "v1.0.0"
+   branch develop
+   checkout develop
+   commit id: "feat: Reto 01 Streams Flota 15"
+   branch feature/factory-drones
+   checkout feature/factory-drones
+   commit id: "feat: FabricaDrones"
+   checkout develop
+   merge feature/factory-drones id: "PR: FabricaDrones"
+   branch feature/asignacion-automatica
+   checkout feature/asignacion-automatica
+   commit id: "feat: AsignadorAutomatico"
+   checkout develop
+   merge feature/asignacion-automatica id: "PR: AsignacionAuto"
+   branch feature/alertas-centro-control
+   checkout feature/alertas-centro-control
+   commit id: "feat: CentroControlAlertas"
+   checkout develop
+   merge feature/alertas-centro-control id: "PR: AlertasControl"
+   checkout main
+   branch hotfix/fix-bateria-critica
+   checkout hotfix/fix-bateria-critica
+   commit id: "fix: aborto preventivo bateria <20%"
+   checkout main
+   merge hotfix/fix-bateria-critica id: "Merge Hotfix" tag: "v1.0.1"
+   checkout develop
+   merge hotfix/fix-bateria-critica id: "Sync Hotfix"
+   branch release/v2.0
+   checkout release/v2.0
+   commit id: "chore: bump version 2.0.0"
+   checkout main
+   merge release/v2.0 id: "Merge Release v2.0" tag: "v2.0.0"
+   checkout develop
+   merge release/v2.0 id: "Sync Release v2.0"
+```
+
+### 📋 Mapeo de Ramas y Responsabilidades en el Repositorio
+
+| Rama | Tipo GitFlow | Origen | Destino | Propósito / Alcance | Enlace / PR en GitHub |
+|---|---|---|---|---|---|
+| **`main`** | Producción | — | — | Código estable aprobado en producción (`v1.0.0`, `v1.0.1`, `v2.0.0`). | [Rama `main`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/tree/main) |
+| **`develop`** | Integración | `main` | `main` (vía release) | Integración continua de features completadas de la versión 2. | [Rama `develop`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/tree/develop) |
+| **`feature/factory-drones`** | Feature | `develop` | `develop` | Implementación del patrón Factory Method ([`FabricaDrones`](file:///Prinplup/src/aquaport/service/FabricaDrones.java)) para creación de drones polimórficos. | [PR `feature/factory-drones`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/pull/new/feature/factory-drones) |
+| **`feature/asignacion-automatica`** | Feature | `develop` | `develop` | Asignación inteligente y autónoma según agitación hídrica y carga ([`AsignadorAutomaticoMisiones`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java)). | [PR `feature/asignacion-automatica`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/pull/new/feature/asignacion-automatica) |
+| **`feature/alertas-centro-control`** | Feature | `develop` | `develop` | Despacho y monitoreo automático de alertas ante batería crítica y fallos ([`CentroControlAlertas`](file:///Prinplup/src/aquaport/service/CentroControlAlertas.java)). | [PR `feature/alertas-centro-control`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/pull/new/feature/alertas-centro-control) |
+| **`hotfix/fix-bateria-critica`** | Hotfix | `main` | `main` & `develop` | Parche urgente en caliente sobre producción: evaluación de batería crítica $< 20\%$ con aborto preventivo. | [PR `hotfix/fix-bateria-critica`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/pull/new/hotfix/fix-bateria-critica) |
+| **`release/v2.0`** | Release | `develop` | `main` & `develop` | Estabilización, incremento de versión a `2.0.0` y verificación pre-despliegue. | [PR `release/v2.0`](https://github.com/Oscar10lm/MaterialRefuerzoPiplup/pull/new/release/v2.0) |
+
+### 🏷️ Tags de Versión Oficiales
+
+* **`v1.0.0`**: MVP AquaPort (Piplup) con 14 retos aprobados.
+* **`v1.0.1`**: Hotfix urgente sobre producción para validación preventiva de batería crítica $< 20\%$.
+* **`v2.0.0`**: AquaPort v2 (Prinplup) — Flota autónoma multimodal de 15 drones con asignación inteligente y alertas.
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5)
 
-Las pruebas están ubicadas en [`Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java):
+La suite de pruebas contiene **24 pruebas unitarias** pasando al 100%:
+* [`ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java) (12 pruebas)
+* [`FabricaDronesTest.java`](file:///Prinplup/test/aquaport/service/FabricaDronesTest.java) (4 pruebas)
+* [`AsignadorAutomaticoMisionesTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java) (4 pruebas)
+* [`CentroControlAlertasTest.java`](file:///Prinplup/test/aquaport/service/CentroControlAlertasTest.java) (4 pruebas)
 
 ```powershell
 mvn -f Prinplup/pom.xml test
 ```
-
-* **Total pruebas:** 12 ejecutadas, 0 fallos, 0 errores.
-* **Cobertura:** Verificada con JaCoCo (`target/site/jacoco/index.html`).
 
 ---
 
@@ -146,3 +209,4 @@ mvn -f Prinplup/pom.xml compile exec:java -Dexec.mainClass="aquaport.MainPrinplu
 javac -d Prinplup/target/classes Prinplup/src/aquaport/model/*.java Prinplup/src/aquaport/service/*.java Prinplup/src/aquaport/*.java
 java -cp Prinplup/target/classes aquaport.MainPrinplup
 ```
+
