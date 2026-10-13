@@ -127,4 +127,96 @@ class ValidadorMisionTest {
     void zonaValidaEnMayusculas_noLanzaExcepcion() {
         assertDoesNotThrow(() -> v.validarPuntoLlegada("EMBALSE NORTE"));
     }
+
+    @Test
+    @DisplayName("Drone nulo al evaluar disponibilidad lanza IllegalArgumentException")
+    void droneNuloAlEvaluarDisponibilidad_lanzaExcepcion() {
+        assertThrows(IllegalArgumentException.class, () -> v.estaDisponible(null));
+    }
+
+    // ---------------------------------------------------------------
+    // Validación completa de Mision (RN-01 y RN-02)
+    // ---------------------------------------------------------------
+
+    @Test
+    @DisplayName("Validar misión nula lanza IllegalArgumentException")
+    void misionNula_lanzaIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> v.validar(null));
+    }
+
+    @Test
+    @DisplayName("Misión válida cumple con todas las reglas y no lanza excepción")
+    void misionValida_noLanzaExcepcion() {
+        DroneAcuatico drone = new DroneAcuatico("AR-01", "Aqua-Ranger 100", 80, true, "Embalse Norte");
+        aquaport.model.Mision mision = new aquaport.model.Mision.Builder()
+                .id("M-01")
+                .drone(drone)
+                .puntoPartida("Embalse Norte")
+                .puntoLlegada("Laboratorio Hídrico")
+                .tipoCarga(aquaport.model.TipoCarga.MUESTRA_AGUA)
+                .build();
+
+        assertDoesNotThrow(() -> v.validar(mision));
+    }
+
+    @Test
+    @DisplayName("Misión con origen idéntico al destino lanza IllegalStateException (RN-02)")
+    void misionOrigenIgualDestino_lanzaIllegalStateException() {
+        DroneAcuatico drone = new DroneAcuatico("AR-01", "Aqua-Ranger 100", 80, true, "Embalse Norte");
+        aquaport.model.Mision mision = new aquaport.model.Mision.Builder()
+                .id("M-02")
+                .drone(drone)
+                .puntoPartida("Embalse Norte")
+                .puntoLlegada("Embalse Norte")
+                .tipoCarga(aquaport.model.TipoCarga.MUESTRA_AGUA)
+                .build();
+
+        assertThrows(IllegalStateException.class, () -> v.validar(mision));
+    }
+
+    @Test
+    @DisplayName("Misión con zona de partida no habilitada lanza IllegalStateException (RN-02)")
+    void misionZonaPartidaInvalida_lanzaIllegalStateException() {
+        DroneAcuatico drone = new DroneAcuatico("AR-01", "Aqua-Ranger 100", 80, true, "Embalse Norte");
+        aquaport.model.Mision mision = new aquaport.model.Mision.Builder()
+                .id("M-03")
+                .drone(drone)
+                .puntoPartida("Mar Caribe")
+                .puntoLlegada("Laboratorio Hídrico")
+                .tipoCarga(aquaport.model.TipoCarga.MUESTRA_AGUA)
+                .build();
+
+        assertThrows(IllegalStateException.class, () -> v.validar(mision));
+    }
+
+    @Test
+    @DisplayName("Misión con zona de llegada no habilitada lanza IllegalStateException (RN-02)")
+    void misionZonaLlegadaInvalida_lanzaIllegalStateException() {
+        DroneAcuatico drone = new DroneAcuatico("AR-01", "Aqua-Ranger 100", 80, true, "Embalse Norte");
+        aquaport.model.Mision mision = new aquaport.model.Mision.Builder()
+                .id("M-04")
+                .drone(drone)
+                .puntoPartida("Embalse Norte")
+                .puntoLlegada("Río Magdalena")
+                .tipoCarga(aquaport.model.TipoCarga.MUESTRA_AGUA)
+                .build();
+
+        assertThrows(IllegalStateException.class, () -> v.validar(mision));
+    }
+
+    @Test
+    @DisplayName("Misión con drone con batería < 35% lanza IllegalStateException (RN-01)")
+    void misionDroneBateriaInsuficiente_lanzaIllegalStateException() {
+        // Drone disponible pero con 25% de batería
+        DroneAcuatico drone = new DroneAcuatico("AR-02", "Aqua-Ranger 100", 25, true, "Embalse Norte");
+        aquaport.model.Mision mision = new aquaport.model.Mision.Builder()
+                .id("M-05")
+                .drone(drone)
+                .puntoPartida("Embalse Norte")
+                .puntoLlegada("Laboratorio Hídrico")
+                .tipoCarga(aquaport.model.TipoCarga.MUESTRA_AGUA)
+                .build();
+
+        assertThrows(IllegalStateException.class, () -> v.validar(mision));
+    }
 }
