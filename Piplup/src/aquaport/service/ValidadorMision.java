@@ -26,24 +26,43 @@ public class ValidadorMision {
         "Laboratorio Hídrico"
     );
 
+    /**
+     * Indica si el drone tiene la batería mínima (&gt;= 35%) para ser asignado.
+     *
+     * @param drone drone a evaluar
+     * @return true si su batería es mayor o igual al umbral operativo
+     * @throws IllegalArgumentException si el drone es nulo
+     */
     public boolean tieneBateriaSuficiente(DroneAcuatico drone) {
-        if (drone == null) {
-            throw new IllegalArgumentException("El drone no puede ser nulo.");
-        }
+        exigirDrone(drone);
         return drone.bateria() >= BATERIA_MINIMA_DESPEGUE;
     }
 
+    /**
+     * Indica si el drone está libre para recibir una misión.
+     *
+     * @param drone drone a evaluar
+     * @return true si disponible = true
+     * @throws IllegalArgumentException si el drone es nulo
+     */
     public boolean estaDisponible(DroneAcuatico drone) {
+        exigirDrone(drone);
         return drone.disponible();
     }
 
+    /**
+     * Valida que el punto de llegada no sea nulo/vacío y pertenezca a una zona habilitada.
+     *
+     * @param puntoLlegada zona de destino
+     * @throws IllegalArgumentException si es nulo, vacío o no es una zona habilitada
+     */
     public void validarPuntoLlegada(String puntoLlegada) {
         if (puntoLlegada == null || puntoLlegada.isBlank()) {
             throw new IllegalArgumentException("El punto de llegada no puede ser nulo ni vacío.");
         }
-        boolean valida = ZONAS_HABILITADAS.stream().anyMatch(z -> z.equalsIgnoreCase(puntoLlegada));
-        if (!valida) {
-            throw new IllegalArgumentException("La zona '" + puntoLlegada + "' no es una zona habilitada del campus.");
+        if (!esZonaHabilitada(puntoLlegada)) {
+            throw new IllegalArgumentException(
+                "La zona '" + puntoLlegada + "' no es una zona habilitada del campus.");
         }
     }
 
@@ -68,23 +87,21 @@ public class ValidadorMision {
         }
 
         // Regla 1b: Puntos pertenecientes a zonas oficiales de la ECI
-        boolean origenValido = ZONAS_HABILITADAS.stream().anyMatch(z -> z.equalsIgnoreCase(mision.getPuntoPartida()));
-        boolean destinoValido = ZONAS_HABILITADAS.stream().anyMatch(z -> z.equalsIgnoreCase(mision.getPuntoLlegada()));
-        if (!origenValido || !destinoValido) {
+        if (!esZonaHabilitada(mision.getPuntoPartida()) || !esZonaHabilitada(mision.getPuntoLlegada())) {
             throw new IllegalStateException(String.format(
                 "Regla de negocio violada (RN-02): Ruta con zonas no habilitadas en el campus (Origen: '%s', Destino: '%s').",
                 mision.getPuntoPartida(), mision.getPuntoLlegada()
             ));
         }
 
-        // Regla 2: Drone y estado
+        // Regla 2: Drone asignado
         DroneAcuatico drone = mision.getDrone();
         if (drone == null) {
             throw new IllegalStateException("Regla de negocio violada: La misión no tiene un drone asignado.");
         }
 
         // Regla 3: Nivel de batería para despegue seguro (RN-01: >= 35%)
-        if (drone.bateria() < BATERIA_MINIMA_DESPEGUE) {
+        if (!tieneBateriaSuficiente(drone)) {
             throw new IllegalStateException(String.format(
                 "Regla de negocio violada (RN-01): El drone '%s' tiene %d%% de batería (mínimo requerido: %d%%).",
                 drone.id(), drone.bateria(), BATERIA_MINIMA_DESPEGUE
@@ -92,11 +109,22 @@ public class ValidadorMision {
         }
 
         // Regla 4: Disponibilidad (RN-01)
-        if (!drone.disponible()) {
+        if (!estaDisponible(drone)) {
             throw new IllegalStateException(String.format(
                 "Regla de negocio violada (RN-01): El drone '%s' no se encuentra disponible.",
                 drone.id()
             ));
         }
     }
+
+    private boolean esZonaHabilitada(String zona) {
+        return ZONAS_HABILITADAS.stream().anyMatch(z -> z.equalsIgnoreCase(zona));
+    }
+
+    private void exigirDrone(DroneAcuatico drone) {
+        if (drone == null) {
+            throw new IllegalArgumentException("El drone no puede ser nulo.");
+        }
+    }
+
 }
