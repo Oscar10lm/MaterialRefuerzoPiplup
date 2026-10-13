@@ -331,6 +331,41 @@ mvn -f Piplup/pom.xml test
 
 ---
 
+## 📊 Cobertura de Código con JaCoCo (Reto 13)
+
+Configuración de `jacoco-maven-plugin` (0.8.11) en `Piplup/pom.xml` en las fases `prepare-agent` y `report` (enlazado al ciclo de vida `test`).
+
+### 🎯 Meta Exigida vs. Resultado Obtenido
+
+| Clase evaluada | Métrica | Meta exigida | **Resultado obtenido** | Estado |
+|---|---|---|---|---|
+| **`ValidadorMision`** | **Line Coverage** | $\ge 80\%$ | **90.9%** (30 / 33 líneas) | ✅ Superado |
+| `ValidadorMision` | Branch Coverage | — | **91.6%** (22 / 24 ramas) | ✅ Excelente |
+| `ValidadorMision` | Instruction Coverage | — | **89.8%** (159 / 177 inst.) | ✅ Excelente |
+| `ValidadorMision` | Method Coverage | — | **100.0%** (9 / 9 métodos) | ✅ Completo |
+
+### 📸 Captura del Reporte de Cobertura
+
+![Reporte JaCoCo ValidadorMision](../docs/images/jacoco-report.png)
+
+### 🚦 Cómo leer el reporte de JaCoCo
+
+| Color en el reporte | Significado | Acción tomada en el proyecto |
+|---|---|---|
+| 🟩 **Verde** | Línea o rama cubierta por al menos una prueba | Se cubrieron casos positivos, bordes y excepciones |
+| 🟨 **Amarillo** | Rama parcialmente cubierta (falta el otro camino del `if`) | Se agregaron pruebas para ambas ramas de cada decisión |
+| 🟥 **Rojo** | Línea o rama nunca ejecutada | Se escribieron pruebas para todos los métodos |
+
+### ▶️ Generar y abrir el reporte localmente
+
+```powershell
+mvn -f Piplup/pom.xml test
+# El reporte se genera automáticamente en:
+# Piplup/target/site/jacoco/index.html
+```
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
