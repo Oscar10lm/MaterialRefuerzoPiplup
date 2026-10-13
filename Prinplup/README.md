@@ -224,9 +224,124 @@ verifyNoMoreInteractions(mockTecnicoMantenimiento);
 
 ---
 
+## 📐 Reto 04: Principios SOLID en AquaPort v2
+
+En la arquitectura de **AquaPort v2 (Prinplup)**, cada componente y abstracción fue diseñado siguiendo rigurosamente los 5 principios SOLID para garantizar extensibilidad sin modificación, sustituibilidad polimórfica y bajo acoplamiento en un entorno crítico de monitoreo ambiental autónomo.
+
+### 📋 Auditoría de Clases e Interfaces de la v2
+
+| Clase / Interfaz | Paquete | Principio(s) Aplicado(s) | Cómo se Aplica en AquaPort v2 |
+|---|---|---|---|
+| [`DroneAcuatico`](file:///Prinplup/src/aquaport/model/DroneAcuatico.java) | `model` | **OCP, LSP** | Abstracción base inmutable que encapsula atributos universales de la flota y define el método template polimórfico `getTipo()`, extensible a nuevos tipos sin tocar el núcleo. |
+| [`DroneSuperficial`](file:///Prinplup/src/aquaport/model/DroneSuperficial.java) | `model` | **SRP, LSP, OCP** | Especialización para aguas calmas con capacidad fija de 500 g. Sustituye limpiamente a `DroneAcuatico` sin romper contratos de validación ni lanzar excepciones imprevistas. |
+| [`DroneSemisumergido`](file:///Prinplup/src/aquaport/model/DroneSemisumergido.java) | `model` | **SRP, LSP, OCP** | Especialización para aguas agitadas y corrientes con capacidad de 1.50 kg. Cumple todos los invariantes de batería y disponibilidad de la superclase. |
+| [`DroneBuceador`](file:///Prinplup/src/aquaport/model/DroneBuceador.java) | `model` | **SRP, LSP, OCP** | Especialización subacuática con capacidad de 300 g para toma de muestras en profundidad. Sustituible en cualquier pipeline que consuma `DroneAcuatico`. |
+| [`TipoDrone`](file:///Prinplup/src/aquaport/model/TipoDrone.java) | `model` | **SRP** | Encapsula exclusivamente la taxonomía categórica de drones admitidos por la plataforma. |
+| [`CondicionAgua`](file:///Prinplup/src/aquaport/model/CondicionAgua.java) | `model` | **SRP** | Representa los estados físicos del cuerpo hídrico (`CALMA`, `AGITADA`, `PROFUNDA`) para evaluación desacoplada de aptitud. |
+| [`Prioridad`](file:///Prinplup/src/aquaport/model/Prioridad.java) | `model` | **SRP** | Modela los niveles de urgencia (`CRITICA`, `ALTA`, `NORMAL`, `BAJA`) para guiar las políticas de asignación. |
+| [`EstadoMision`](file:///Prinplup/src/aquaport/model/EstadoMision.java) | `model` | **SRP** | Modela el ciclo de vida de una orden de trabajo (`PLANIFICADA`, `EN_CURSO`, `COMPLETADA`, `CANCELADA`, `FALLIDA`). |
+| [`Mision`](file:///Prinplup/src/aquaport/model/Mision.java) | `model` | **SRP** | Agrega los metadatos de la misión (ruta, prioridad, drone asignado, carga). Única razón de cambio: cambios en la especificación de una misión. |
+| [`Alerta`](file:///Prinplup/src/aquaport/model/Alerta.java) | `model` | **SRP** | Encapsula el evento de notificación emitido por anomalías operativas o telemétricas. |
+| [`NivelAlerta`](file:///Prinplup/src/aquaport/model/NivelAlerta.java) | `model` | **SRP** | Clasificación de severidad de eventos (`INFO`, `ADVERTENCIA`, `CRITICA`). |
+| [`FabricaDrones`](file:///Prinplup/src/aquaport/service/FabricaDrones.java) | `service` | **SRP, OCP** | Centraliza la instanciación de drones según su `TipoDrone`. Aísla el código cliente de conocer los constructores concretos. |
+| [`EstrategiaSeleccionDrone`](file:///Prinplup/src/aquaport/service/strategy/EstrategiaSeleccionDrone.java) | `service.strategy` | **OCP, ISP, DIP** | Interfaz delgada enfocada en un único propósito: seleccionar el drone óptimo entre un conjunto de candidatos. |
+| [`MayorBateriaStrategy`](file:///Prinplup/src/aquaport/service/strategy/MayorBateriaStrategy.java) | `service.strategy` | **SRP, LSP, DIP** | Implementación concreta de selección por reserva energética máxima. |
+| [`ZonaCercanaStrategy`](file:///Prinplup/src/aquaport/service/strategy/ZonaCercanaStrategy.java) | `service.strategy` | **SRP, LSP, DIP** | Implementación concreta de selección por proximidad geográfica para minimizar tránsito en vacío. |
+| [`PrioridadCriticaStrategy`](file:///Prinplup/src/aquaport/service/strategy/PrioridadCriticaStrategy.java) | `service.strategy` | **SRP, LSP, DIP** | Implementación concreta de selección para contingencias con umbral de batería $\ge 50\%$. |
+| [`ObservadorFalloDrone`](file:///Prinplup/src/aquaport/service/observer/ObservadorFalloDrone.java) | `service.observer` | **ISP, DIP, OCP** | Interfaz funcional segregada (`@FunctionalInterface`) con un único método (`notificarFallo`), evitando obligar a los clientes a implementar métodos irrelevantes. |
+| [`CentroControlObserver`](file:///Prinplup/src/aquaport/service/observer/CentroControlObserver.java) | `service.observer` | **SRP, LSP, DIP** | Receptor de alarmas para la estación de control telemétrico. |
+| [`TecnicoMantenimientoObserver`](file:///Prinplup/src/aquaport/service/observer/TecnicoMantenimientoObserver.java) | `service.observer` | **SRP, LSP, DIP** | Receptor de incidentes para emisión de órdenes de reparación y triaje. |
+| [`AsignadorAutomaticoMisiones`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java) | `service` | **SRP, OCP, DIP** | Coordina la asignación inteligente y el despacho de fallos dependiendo exclusivamente de abstracciones (`EstrategiaSeleccionDrone`, `ObservadorFalloDrone`). |
+| [`CentroControlAlertas`](file:///Prinplup/src/aquaport/service/CentroControlAlertas.java) | `service` | **SRP** | Gestiona el registro histórico y despacho de alertas del campus. |
+| [`ConsultorFlotaAvanzado`](file:///Prinplup/src/aquaport/service/ConsultorFlotaAvanzado.java) | `service` | **SRP** | Servicio analítico que ejecuta consultas declarativas sobre la flota mediante Streams & Lambdas. |
+
+---
+
+### 🔍 Análisis Detallado de los 5 Principios SOLID
+
+#### 1. S — Single Responsibility Principle (Principio de Responsabilidad Única)
+* **Dónde se respeta:**
+  * En [`FabricaDrones.java`](file:///Prinplup/src/aquaport/service/FabricaDrones.java): Su única responsabilidad es instanciar la subclase adecuada de `DroneAcuatico` según las especificaciones de fábrica. No realiza validaciones de misiones ni gestiona inventarios.
+  * En [`AsignadorAutomaticoMisiones.java`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java): Su único rol es orquestar la asignación y coordinar el despacho de fallos. Delega la lógica de decisión a las estrategias y la reacción a los observadores.
+  * En [`CentroControlAlertas.java`](file:///Prinplup/src/aquaport/service/CentroControlAlertas.java): Únicamente almacena y despacha alertas a los suscriptores telemétricos.
+* **Por qué importa en AquaPort:**
+  En una estación de monitoreo fluvial y lacustre con 15 drones autónomos, separar la toma de decisiones (asignación), la creación de unidades (fábrica), el reporte de incidentes (alertas) y las consultas analíticas evita que un cambio en la normativa de alarmas afecte los algoritmos de vuelo o el motor de despacho.
+
+#### 2. O — Open/Closed Principle (Principio Abierto/Cerrado)
+* **Dónde se respeta:**
+  * **Jerarquía de Drones abierta a extensión:** Al incorporar un 4to tipo de drone (por ejemplo, `DroneSumergibleProfundo`), **no se modifica en lo absoluto ni una sola línea de [`AsignadorAutomaticoMisiones.java`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java)** ni del modelo base. El asignador interactúa puramente con la abstracción `DroneAcuatico` y sus métodos polimórficos (`getCapacidadCargaKg()`, `getTipo()`, etc.).
+  * **Estrategias de Selección abiertas a extensión:** Al incorporar nuevas políticas operativas (como `ZonaCercanaStrategy`, `PrioridadCriticaStrategy` o una estrategia ad-hoc `PrimerDisponibleStrategy`), el asignador las consume a través del contrato [`EstrategiaSeleccionDrone`](file:///Prinplup/src/aquaport/service/strategy/EstrategiaSeleccionDrone.java) sin tocar su implementación ni recurrir a condicionales `if-else` o `switch`.
+  * **Sistema de Alertas abierto a extensión:** Se pueden registrar nuevos escuchas (ej. guardacostas, servicios web externos) implementando [`ObservadorFalloDrone`](file:///Prinplup/src/aquaport/service/observer/ObservadorFalloDrone.java) sin alterar la lógica de despacho.
+* **Por qué importa en AquaPort:**
+  Permite desplegar nuevos prototipos de hardware acuático (drones de profundidad abisal o lanchas de rescate) y nuevas políticas de optimización de combustible/batería en caliente sin recompilar ni arriesgar regresiones en el núcleo de navegación autónoma.
+
+#### 3. L — Liskov Substitution Principle (Principio de Sustitución de Liskov)
+* **Dónde se respeta:**
+  * En todas las subclases de [`DroneAcuatico`](file:///Prinplup/src/aquaport/model/DroneAcuatico.java): [`DroneSuperficial`](file:///Prinplup/src/aquaport/model/DroneSuperficial.java), [`DroneSemisumergido`](file:///Prinplup/src/aquaport/model/DroneSemisumergido.java), [`DroneBuceador`](file:///Prinplup/src/aquaport/model/DroneBuceador.java) y el nuevo `DroneSumergibleProfundo`.
+  * **Cumplimiento estricto de invariantes y contratos:**
+    1. Ninguna subclase lanza excepciones imprevistas en métodos de consulta (`getBateria()`, `getCapacidadCargaKg()`, `isDisponible()`, `toString()`).
+    2. Ninguna subclase retorna `null` donde el contrato del padre espera un valor consistente o un `Optional`.
+    3. Todas las subclases respetan las precondiciones (batería acotada entre $0$ y $100$, capacidades estrictamente positivas) y postcondiciones del padre.
+    4. En [`SolidPrincipiosTest.java:L103-L125`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java#L103-L125), se demuestra cómo cualquier colección de `DroneAcuatico` heterogénea se procesa uniformemente sin requerir verificaciones de tipo (`instanceof`) ni casting explícito.
+* **Por qué importa en AquaPort:**
+  Si un `DroneBuceador` retornara `null` o lanzara `UnsupportedOperationException` al consultar su capacidad de carga o nivel de batería en un algoritmo de asignación masiva, causaría una falla catastrófica en tiempo de ejecución, cancelando operaciones de contención de vertimientos en el campus.
+
+#### 4. I — Interface Segregation Principle (Principio de Segregación de Interfaces)
+* **Dónde se respeta:**
+  * En [`ObservadorFalloDrone.java`](file:///Prinplup/src/aquaport/service/observer/ObservadorFalloDrone.java): Define un único método enfocado:
+    ```java
+    @FunctionalInterface
+    public interface ObservadorFalloDrone {
+        void notificarFallo(DroneAcuatico drone, String motivo);
+    }
+    ```
+    No obliga a [`CentroControlObserver`](file:///Prinplup/src/aquaport/service/observer/CentroControlObserver.java) ni a [`TecnicoMantenimientoObserver`](file:///Prinplup/src/aquaport/service/observer/TecnicoMantenimientoObserver.java) a implementar métodos innecesarios (como monitoreo de GPS en vivo, telemetría de turbinas o control de carga eléctrica).
+  * En [`EstrategiaSeleccionDrone.java`](file:///Prinplup/src/aquaport/service/strategy/EstrategiaSeleccionDrone.java): Segregada exclusivamente a la selección (`seleccionar`) y nomenclatura (`getNombre`), sin forzar métodos de serialización o persistencia.
+* **Por qué importa en AquaPort:**
+  Los observadores técnicos de hardware no tienen por qué acoplarse a interfaces "gordas" que manejen reportes administrativos o facturación, permitiendo componentes ligeros y de bajo consumo de memoria.
+
+#### 5. D — Dependency Inversion Principle (Principio de Inversión de Dependencias)
+* **Dónde se respeta:**
+  * En [`AsignadorAutomaticoMisiones.java`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java):
+    * El asignador (módulo de alto nivel) **no depende de ninguna clase concreta** como `MayorBateriaStrategy` ni `CentroControlObserver`.
+    * Depende exclusivamente de **abstracciones**: [`EstrategiaSeleccionDrone`](file:///Prinplup/src/aquaport/service/strategy/EstrategiaSeleccionDrone.java) y [`ObservadorFalloDrone`](file:///Prinplup/src/aquaport/service/observer/ObservadorFalloDrone.java).
+    * La estrategia activa y los observadores se inyectan a través del constructor o mediante métodos mutadores (`setEstrategia`, `agregarObservador`):
+      ```java
+      public AsignadorAutomaticoMisiones(EstrategiaSeleccionDrone estrategia) {
+          this.estrategia = Objects.requireNonNull(estrategia, "La estrategia no puede ser nula");
+      }
+      ```
+* **Por qué importa en AquaPort:**
+  Permite alternar dinámicamente entre políticas de selección (p. ej., conmutar a `PrioridadCriticaStrategy` cuando se activa un protocolo de emergencia ambiental) e inyectar *test doubles* (mocks de Mockito) en pruebas unitarias sin levantar infraestructura real de radiocomunicación.
+
+---
+
+### 🧪 Pruebas Automatizadas de Principios SOLID
+
+El cumplimiento formal de los principios SOLID se verifica mediante la suite [`SolidPrincipiosTest.java`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java):
+
+```java
+@Test
+@DisplayName("OCP: Se agrega el 4to tipo de drone (DroneSumergibleProfundo) sin modificar AsignadorAutomaticoMisiones")
+void ocp_cuartoTipoDeDrone_funcionaSinModificarAsignador() {
+    AsignadorAutomaticoMisiones asignador = new AsignadorAutomaticoMisiones(new MayorBateriaStrategy());
+    DroneAcuatico nuevoDrone = new DroneSumergibleProfundo("DSP-01", "Abyssal Explorer 3000", 99, EstadoDrone.DISPONIBLE, ZonasCampus.BAHIA_CIENCIA);
+
+    Optional<DroneAcuatico> seleccionado = asignador.seleccionarDroneOptimo(
+            List.of(nuevoDrone), ZonasCampus.BAHIA_CIENCIA, CondicionAgua.PROFUNDA, 0.250
+    );
+
+    assertTrue(seleccionado.isPresent());
+    assertEquals("DSP-01", seleccionado.get().getId());
+}
+```
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
-La suite de pruebas contiene **29 pruebas unitarias** pasando al 100%:
+La suite de pruebas contiene **33 pruebas unitarias** pasando al 100%:
+* [`SolidPrincipiosTest.java`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java) (4 pruebas: OCP, LSP, ISP, DIP)
 * [`ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java) (12 pruebas)
 * [`PatronesDisenoIntegracionTest.java`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java) (5 pruebas con Mockito)
 * [`FabricaDronesTest.java`](file:///Prinplup/test/aquaport/service/FabricaDronesTest.java) (4 pruebas)
@@ -249,4 +364,5 @@ mvn -f Prinplup/pom.xml compile exec:java -Dexec.mainClass="aquaport.MainPrinplu
 javac -d Prinplup/target/classes Prinplup/src/aquaport/model/*.java Prinplup/src/aquaport/service/*.java Prinplup/src/aquaport/*.java
 java -cp Prinplup/target/classes aquaport.MainPrinplup
 ```
+
 
