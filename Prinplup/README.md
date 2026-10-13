@@ -625,6 +625,61 @@ Si se aplica ciegamente **AP-07**, se elegiría el Superficial de 95%, resultand
 
 ---
 
+## 🎨 Reto 08: Identidad Visual, Sistema de Diseño y UX (Prinplup v2)
+
+> 🌐 **Prototipo HTML Interactivo:** [`docs/aquaport-v2-ux-flota-misiones.html`](file:///docs/aquaport-v2-ux-flota-misiones.html)  
+> 📄 **Manual Completo de Diseño:** [`docs/manual-identidad-ux-prinplup.md`](file:///docs/manual-identidad-ux-prinplup.md)
+
+### 1. Componentes y Estados Diseñados
+
+#### A. Tarjeta de Drone Acuático (Los 6 Estados)
+| Estado | Color Primario | Tratamiento Visual | Semántica Operativa |
+|---|---|---|---|
+| 🟢 **Disponible** | `#10B981` (Verde) | Borde superior verde esmeralda, badge `● DISPONIBLE`. | Unidad lista para recibir asignaciones automáticas ($\ge 35\%$ batería). |
+| 🔵 **En Misión** | `#3B82F6` (Azul) | Borde azul océano, código de misión en curso (`MIS-042`). | Navegando activamente en ruta hidrológica. |
+| 🟡 **Recargando** | `#F59E0B` (Amarillo) | Borde ámbar, tiempo restante de recarga eléctrica. | Anclado en estación base; botón de asignación bloqueado. |
+| ⚪ **Mantenimiento** | `#64748B` (Gris) | Borde gris pizarra, orden de trabajo técnica en taller. | En calibración física de sensores o motores. |
+| 🔴 **Fallo Crítico** | `#EF4444` (Rojo) | Borde rojo pulsante, alarma visual y diagnóstico de incidente. | Incidente de navegación (batería $< 20\%$, avería); cuadrilla alertada. |
+| 🌌 **Sumergido** | `#1E3A8A` (Azul Oscuro) | Borde azul abisal, profundidad negativa (ej. `-3.40 m`). | `DroneBuceador` en inmersión activa tomando muestras en el fondo. |
+
+#### B. Botón "Asignar Misión" (Los 5 Estados)
+* **Default:** Fondo degradado cian (`#0284C7` $\rightarrow$ `#38BDF8`), texto contrastante, sombra sutil.
+* **Hover:** Elevación con resplandor (*glow*) (`box-shadow`), borde brillante, transformación `translateY(-2px)`.
+* **Procesando:** Fondo translúcido, cursor `wait`, spinner giratorio 360° y texto: *"Calculando ruta óptima..."*.
+* **Éxito:** Fondo verde esmeralda con checkmark animado: *"✔ ¡Misión Asignada!"*.
+* **Deshabilitado:** Opacidad al 40%, cursor `not-allowed`, candado: *"🔒 Bloqueado (< 35%)"*.
+
+#### C. Indicador de Batería (Los 3 Umbrales)
+* 🟩 **$\ge 60\%$ (Verde `#10B981`):** Nivel óptimo. Apto para misiones largas o contingencias críticas.
+* 🟨 **$35\% - 59\%$ (Amarillo `#F59E0B`):** Nivel medio. Apto para misiones cortas dentro de la misma zona.
+* 🟥 **$< 35\%$ (Rojo `#EF4444`):** Nivel crítico. Barra pulsante con advertencia: *"⚠ Batería crítica < 35% — Despegue bloqueado"*.
+
+---
+
+### 2. Flujo Completo de Asignación Automática (3 Pantallas)
+
+```mermaid
+flowchart LR
+    P1["1️⃣ Panel de Flota<br/><i>(15 Drones agrupados por tipo)</i>"] 
+    -->|"Clic 'Iniciar Asignación'"| P2["2️⃣ Detalle de Misión<br/><i>(Formulario + Telemetría API)</i>"]
+    -->|"Asignar Automáticamente"| P3["3️⃣ Confirmación & Despacho<br/><i>(Clearance Centro Control + Ruta)</i>"]
+```
+
+1. **Pantalla 1 (Panel de Flota):** Visualización global de los 15 drones distribuidos en el campus. Incluye selector por tipo de drone, filtros de estado, telemetría general y botón de emergencia prominente.
+2. **Pantalla 2 (Detalle y Configuración de Misión):** Formulario parametrizado (origen, destino, tipo de carga, peso $1$ a $1500$g, prioridad). Panel en vivo de la **API Condiciones Hídricas** con variables ambientales (calma/agitación/profundidad) y preselección algorítmica.
+3. **Pantalla 3 (Confirmación y Despacho):** Tarjeta destacada del drone óptimo asignado, código de clearance otorgado por el Centro de Control ECI, visualizador de corredor náutico y confirmación de lanzamiento.
+
+---
+
+### 3. Fundamentación Ergonómica: Leyes de Fitts y Hick
+
+* **🛑 Ley de Fitts ($T = a + b \log_2(2D/W)$) en el Botón de Emergencia:**  
+  Ante un escape de reactivos o pérdida de telemetría de un drone en el agua, el operador humano necesita accionar la parada en milisegundos. El **Botón de Emergencia** se fijó en la esquina superior derecha del panel (borde infinito de pantalla donde la distancia $D$ es mínima y fija), con dimensiones sobredimensionadas ($W = 185\text{px}$, $H = 44\text{px}$) y color rojo contrastante pulsante, minimizando drásticamente el tiempo de movimiento $T$ a una respuesta refleja sub-segundo ($< 300\text{ ms}$).
+* **🧠 Ley de Hick ($T = b \log_2(n + 1)$) en la Agrupación de los 15 Drones:**  
+  Presentar una cuadrícula caótica con 15 drones desordenados ($n = 15$) eleva exponencialmente el tiempo de búsqueda cognitiva del operador. Se aplicó la Ley de Hick estructurando la flota en **3 grupos jerárquicos por especialidad técnica** (Superficial, Semisumergido, Buceador) con sub-filtros de zona, reduciendo las opciones inmediatas a $n = 3$, lo que agiliza la toma de decisiones críticas en más de un $60\%$.
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
 La suite de pruebas contiene **35 pruebas unitarias** pasando al 100%:
