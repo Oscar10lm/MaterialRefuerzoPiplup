@@ -366,6 +366,39 @@ mvn -f Piplup/pom.xml test
 
 ---
 
+## 🛡️ Análisis Estático con SonarQube Community (Reto 14)
+
+Auditoría estática de calidad de código ejecutada con **SonarQube Community**. Todos los Bugs y Vulnerabilidades han sido resueltos, y la deuda técnica final es **0 minutos (0.0%)** para el release MVP de AquaPort.
+
+### 🚦 Prioridad de Issues en SonarQube
+
+| Tipo | Descripción | Prioridad | Acción tomada en AquaPort |
+|---|---|---|---|
+| 🔴 **Bug** | Código que claramente produce un comportamiento incorrecto | **Resolver siempre, primero** | Se corrigió `java:S2259` en `ValidadorMision` (prevención de NPE). |
+| 🟠 **Vulnerability** | Código que puede ser explotado por un atacante | **Resolver siempre** | 0 vulnerabilidades identificadas. |
+| 🟡 **Code Smell** | Código difícil de mantener o entender | **Resolver, pero es el último** | Se eliminaron todos los smells (`S1128`, `S106`, `S1192`, `S1118`). |
+
+> [!CAUTION]
+> **⚠ Nunca suprimas un issue con `@SuppressWarnings`:**  
+> Suprimir un issue es ignorarlo, no resolverlo. La deuda técnica sigue existiendo; solo la estás escondiendo. En AquaPort no se utiliza `@SuppressWarnings` para evadir análisis de calidad.
+
+### 📸 Captura del Dashboard de SonarQube
+
+![SonarQube Dashboard](../docs/images/sonarqube-dashboard.png)
+
+### 📋 Registro de Code Smells y Bugs Resueltos
+
+| Tipo / Regla | Componente | Qué era el smell / problema | Por qué era un problema | Cómo se corrigió |
+|---|---|---|---|---|
+| 🔴 **Bug** (`java:S2259`) | `ValidadorMision` | Desreferenciación nula en `mision.getPuntoPartida().equalsIgnoreCase(...)` | Si los puntos eran nulos, arrojaba `NullPointerException` en lugar de excepción de negocio | Validación defensiva comprobando no-nulidad y no-blanco arrojando `IllegalStateException` explícito |
+| 🟡 **Code Smell** (`java:S1128`) | `Mision` | Import no utilizado `java.util.Objects` | Añadía ruido visual y violaba directrices de código limpio | Se eliminó la declaración de importación redundante |
+| 🟡 **Code Smell** (`java:S106`) | `NotificadorOperador` | Llamadas directas a `System.out.printf` | Salida estándar sin niveles de severidad ni capacidad de redirección | Sustituido por `java.util.logging.Logger` con niveles `INFO`, `WARNING` y `SEVERE` |
+| 🟡 **Code Smell** (`java:S1192` / `java:S1118`) | `ZonasCampus`, `ValidadorMision`, `Main` | Duplicación reiterada de literales de zonas y falta de constructor privado | Riesgo de erratas tipográficas y clase utilitaria instanciable | Clase inmutable `ZonasCampus` con constructor privado y constantes públicas |
+
+> Documento completo de auditoría disponible en: [`docs/sonarqube-analisis-piplup.md`](../docs/sonarqube-analisis-piplup.md)
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
@@ -374,6 +407,7 @@ Desde la raíz del repositorio:
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
 
 
 
