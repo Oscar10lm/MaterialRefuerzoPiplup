@@ -724,6 +724,52 @@ Para dar por concluida cualquier Historia de Usuario en este sprint, debe satisf
 
 ---
 
+## 📐 Reto 10: Diagrama de Casos de Uso (UML v2)
+
+> 📊 **Artefacto PlantUML:** [`docs/diagrama-cu-prinplup.puml`](file:///docs/diagrama-cu-prinplup.puml)  
+> 🖼️ **Diagrama Renderizado:** [`docs/diagrama-cu-prinplup.png`](file:///docs/diagrama-cu-prinplup.png)
+
+### 1. Actores del Sistema en la v2
+* **`Usuario del Sistema` (Actor Base ECI):** Abstracción general de usuario institucional autenticado.
+* **`Operador Hídrico` (Especialización):** Hereda del *Usuario del Sistema*; supervisa la flota de 15 drones y gestiona la asignación autónoma.
+* **`Solicitante` (Especialización):** Hereda del *Usuario del Sistema*; radica solicitudes de transporte de reactivos y muestreo ambiental.
+* **`Técnico de Mantenimiento` (Nuevo v2):** Receptor especializado de órdenes de trabajo cuando un drone entra en `FALLO`; repara y reintegra unidades a estado `DISPONIBLE`.
+* **`Centro de Control ECI` (Nuevo v2 / Autoridad):** Sistema/autoridad institucional que aprueba ventanas horarias y otorga el *clearance* de navegación en los cuerpos de agua del campus.
+
+---
+
+### 2. Casos de Uso Nucleares y Relaciones `<<include>>` / `<<extend>>`
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│               RELACIONES CLAVE DEL CU CENTRAL (AP-07: ASIGNACIÓN AUTOMÁTICA)           │
+├────────────────────────────────────────────────────────────────────────────────────────┤
+│ • <<include>> (Obligatorio):                                                          │
+│   "AP-07 Asignar Misión Automáticamente" ──────>> "Validar Condiciones Hídricas"      │
+│   (El sistema consulta SIEMPRE la API de telemetría limnológica antes de asignar).   │
+│                                                                                        │
+│ • <<include>> (Clearance):                                                             │
+│   "AP-07 Asignar Misión Automáticamente" ──────>> "Autorizar Corredor Acuático"       │
+│   (Requiere clearance institucional emitido por el Centro de Control ECI).             │
+│                                                                                        │
+│ • <<extend>> (Condicional):                                                            │
+│   "Notificar Fallo al Técnico" ──────>> "AP-07 Asignar Misión Automáticamente"         │
+│   [Punto de extensión / Condición: Se activa ÚNICAMENTE si un drone entra en estado    │
+│    FALLO durante el proceso de asignación o validación].                               │
+│                                                                                        │
+│ • Generalización de Actores:                                                           │
+│   Operador Hídrico ──▷ Usuario del Sistema  |  Solicitante ──▷ Usuario del Sistema     │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 3. Diagrama de Casos de Uso UML (v2 Prinplup)
+
+![Diagrama de Casos de Uso Prinplup](../docs/diagrama-cu-prinplup.png)
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
 La suite de pruebas contiene **35 pruebas unitarias** pasando al 100%:
