@@ -69,6 +69,13 @@ class ValidadorMisionTest {
         assertThrows(IllegalArgumentException.class, () -> v.tieneBateriaSuficiente(null));
     }
 
+    @Test
+    @DisplayName("Batería < 20% es detectada como crítica para aborto de emergencia (Hotfix)")
+    void bateriaMenorA20_esBateriaCritica() {
+        DroneAcuatico d = new DroneAcuatico("AR-03", "Aqua-Ranger 100", 18, false, ZonasCampus.LAGUNA_SUR);
+        assertTrue(v.esBateriaCritica(d));
+    }
+
     // ---------------------------------------------------------------
     // Disponibilidad
     // ---------------------------------------------------------------

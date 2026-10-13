@@ -21,6 +21,8 @@ public class ValidadorMision {
 
     private static final Set<String> ZONAS_HABILITADAS = ZonasCampus.TODAS_LAS_ZONAS;
 
+    public static final int UMBRAL_BATERIA_CRITICA_SEGURIDAD = 20;
+
     /**
      * Indica si el drone tiene la batería mínima (&gt;= 35%) para ser asignado.
      *
@@ -31,6 +33,18 @@ public class ValidadorMision {
     public boolean tieneBateriaSuficiente(DroneAcuatico drone) {
         exigirDrone(drone);
         return drone.bateria() >= BATERIA_MINIMA_DESPEGUE;
+    }
+
+    /**
+     * Evalúa si el drone se encuentra en nivel crítico de batería (&lt; 20%) para aborto preventivo.
+     *
+     * @param drone drone a evaluar
+     * @return true si la batería es estrictamente menor al 20%
+     * @throws IllegalArgumentException si el drone es nulo
+     */
+    public boolean esBateriaCritica(DroneAcuatico drone) {
+        exigirDrone(drone);
+        return drone.bateria() < UMBRAL_BATERIA_CRITICA_SEGURIDAD;
     }
 
     /**
