@@ -2,6 +2,7 @@ package aquaport.service;
 
 import aquaport.model.DroneAcuatico;
 import aquaport.model.Mision;
+import aquaport.model.ZonasCampus;
 
 import java.util.Set;
 
@@ -18,13 +19,7 @@ public class ValidadorMision {
 
     private static final int BATERIA_MINIMA_DESPEGUE = 35;
 
-    private static final Set<String> ZONAS_HABILITADAS = Set.of(
-        "Embalse Norte",
-        "Canal Central",
-        "Laguna Sur",
-        "Punto Ribereño Este",
-        "Laboratorio Hídrico"
-    );
+    private static final Set<String> ZONAS_HABILITADAS = ZonasCampus.TODAS_LAS_ZONAS;
 
     /**
      * Indica si el drone tiene la batería mínima (&gt;= 35%) para ser asignado.

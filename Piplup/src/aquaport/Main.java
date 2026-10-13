@@ -4,6 +4,7 @@ import aquaport.model.DroneAcuatico;
 import aquaport.model.EstadoMision;
 import aquaport.model.Mision;
 import aquaport.model.TipoCarga;
+import aquaport.model.ZonasCampus;
 import aquaport.repository.RepositorioMisiones;
 import aquaport.repository.RepositorioMisionesEnMemoria;
 import aquaport.service.ConsultorFlota;
@@ -23,15 +24,19 @@ import java.util.List;
  */
 public class Main {
 
+    private Main() {
+        // Constructor privado para clase utilitaria con método estático main (Sonar java:S1118)
+    }
+
     public static void main(String[] args) {
         imprimirEncabezadoGeneral();
 
         // Flota base oficial
         List<DroneAcuatico> flota = List.of(
-            new DroneAcuatico("AR-01", "Aqua-Ranger 100", 92, true,  "Embalse Norte"),
-            new DroneAcuatico("AR-02", "Aqua-Ranger 100", 45, true,  "Canal Central"),
-            new DroneAcuatico("AR-03", "Aqua-Ranger 100", 18, false, "Laguna Sur"),
-            new DroneAcuatico("AR-04", "Aqua-Ranger 100", 73, true,  "Punto Ribereño Este")
+            new DroneAcuatico("AR-01", "Aqua-Ranger 100", 92, true,  ZonasCampus.EMBALSE_NORTE),
+            new DroneAcuatico("AR-02", "Aqua-Ranger 100", 45, true,  ZonasCampus.CANAL_CENTRAL),
+            new DroneAcuatico("AR-03", "Aqua-Ranger 100", 18, false, ZonasCampus.LAGUNA_SUR),
+            new DroneAcuatico("AR-04", "Aqua-Ranger 100", 73, true,  ZonasCampus.PUNTO_RIBERENO_ESTE)
         );
 
         ejecutarDemostracionReto01(flota);
@@ -79,8 +84,8 @@ public class Main {
             Mision misionValida = new Mision.Builder()
                     .id("M-001")
                     .drone(droneDisponible)
-                    .puntoPartida("Embalse Norte")
-                    .puntoLlegada("Laboratorio Hídrico")
+                    .puntoPartida(ZonasCampus.EMBALSE_NORTE)
+                    .puntoLlegada(ZonasCampus.LABORATORIO_HIDRICO)
                     .tipoCarga(TipoCarga.MUESTRA_AGUA)
                     .estado(EstadoMision.PENDIENTE)
                     .build();
@@ -94,8 +99,8 @@ public class Main {
             new Mision.Builder()
                     .id("M-002")
                     .drone(droneOcupado)
-                    .puntoPartida("Laguna Sur")
-                    .puntoLlegada("Canal Central")
+                    .puntoPartida(ZonasCampus.LAGUNA_SUR)
+                    .puntoLlegada(ZonasCampus.CANAL_CENTRAL)
                     .tipoCarga(TipoCarga.SENSOR)
                     .build();
         } catch (IllegalStateException e) {
@@ -123,8 +128,8 @@ public class Main {
         Mision mision1 = new Mision.Builder()
                 .id("MIS-101")
                 .drone(drone1)
-                .puntoPartida("Embalse Norte")
-                .puntoLlegada("Laboratorio Hídrico")
+                .puntoPartida(ZonasCampus.EMBALSE_NORTE)
+                .puntoLlegada(ZonasCampus.LABORATORIO_HIDRICO)
                 .tipoCarga(TipoCarga.MUESTRA_AGUA)
                 .build();
         registrador.registrarMision(mision1);
@@ -132,8 +137,8 @@ public class Main {
         Mision mision2 = new Mision.Builder()
                 .id("MIS-102")
                 .drone(drone2)
-                .puntoPartida("Canal Central")
-                .puntoLlegada("Punto Ribereño Este")
+                .puntoPartida(ZonasCampus.CANAL_CENTRAL)
+                .puntoLlegada(ZonasCampus.PUNTO_RIBERENO_ESTE)
                 .tipoCarga(TipoCarga.SENSOR)
                 .build();
         registrador.registrarMision(mision2);
@@ -144,8 +149,8 @@ public class Main {
             Mision misionInvalidaRuta = new Mision.Builder()
                     .id("MIS-103")
                     .drone(drone1)
-                    .puntoPartida("Embalse Norte")
-                    .puntoLlegada("Embalse Norte") // Mismo punto
+                    .puntoPartida(ZonasCampus.EMBALSE_NORTE)
+                    .puntoLlegada(ZonasCampus.EMBALSE_NORTE) // Mismo punto
                     .tipoCarga(TipoCarga.PAQUETE_LIGERO)
                     .build();
             registrador.registrarMision(misionInvalidaRuta);
