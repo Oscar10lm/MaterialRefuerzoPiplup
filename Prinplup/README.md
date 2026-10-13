@@ -569,6 +569,62 @@ Si se aplica ciegamente **AP-07**, se elegiría el Superficial de 95%, resultand
 
 ---
 
+## 📑 Reto 07: Plantilla DOSW (RF AP-07: Asignación Automática de Drones)
+
+> 📄 *Documento formal estandarizado disponible en: [`docs/plantilla-dosw-ap07.md`](file:///docs/plantilla-dosw-ap07.md)*
+
+### 1. Estructura de Datos de Entrada y Salida (AP-07)
+
+| Nombre | Tipo de campo | Reglas | Oblig. |
+|---|---|---|---|
+| `carga` | — | Objeto / Contenedor de la carga científica | **Sí** |
+| `carga.peso` | Integer | Entre **1 y 1500 gramos** ($0.001\text{ kg}$ a $1.500\text{ kg}$) | **Sí** |
+| `carga.tipo` | Enum(`MUESTRA_AGUA`, `SENSOR`, `PAQUETE_LIGERO`, `EQUIPO_MEDICION`) | Tipología de material admitido en los lagos del campus | **Sí** |
+| `carga.prioridad` | Enum(`CRITICA`, `ALTA`, `NORMAL`, `BAJA`) | Define urgencia e impacta la estrategia de asignación | **Sí** |
+| `zonaDestino` | Enum(`EMBALSE_NORTE`, `CANAL_CENTRAL`, `LAGUNA_SUR`, `RIBERA_ESTE`, `LAB_HIDRICO`) | Zonas hídricas oficiales del campus universitario | **Sí** |
+| `droneAsignado` | — | Calculado por el sistema según la estrategia activa | **No (salida)** |
+| `droneAsignado.id` | String | Formato `AR-XX` (o id de serie `DS-XX`, `DM-XX`, `DB-XX`) | **No (salida)** |
+| `droneAsignado.tipo` | String | `SUPERFICIAL` / `SEMISUMERGIDO` / `BUCEADOR` | **No (salida)** |
+
+---
+
+### 2. Flujo Básico de Eventos (7 Pasos)
+
+1. **Recibir Solicitud:** El sistema recibe los parámetros obligatorios de misión (`zonaDestino`, `carga.peso`, `carga.tipo`, `carga.prioridad`).
+2. **Consultar Condiciones Hídricas:** El motor consulta síncronamente la API externa para obtener el estado del agua (`CALMA`, `AGITADA`, `PROFUNDA`), profundidad y temperatura.
+3. **Filtrar Drones Aptos para la Zona:** Se aíslan los drones en estado `DISPONIBLE`, en la zona adecuada y con casco compatible con las condiciones de navegación.
+4. **Aplicar Estrategia Activa:** Se invoca la heurística polimórfica inyectada (`MayorBateriaStrategy`, `ZonaCercanaStrategy` o `PrioridadCriticaStrategy` si la prioridad es `CRITICA`).
+5. **Validar Invariantes de Seguridad:** Verificación *fail-fast* de precondiciones: batería $\ge 35\%$ ($\ge 50\%$ en críticas), peso $\le$ capacidad del modelo, y compatibilidad física de casco.
+6. **Asignar y Construir Misión:** Se reserva el drone en estado `EN_MISION` y se instancia la `Mision` inmutable con estado `PENDIENTE`.
+7. **Notificar Observadores y Confirmar:** Se notifica el despacho al Centro de Control y Técnicos (`ObservadorFalloDrone`), retornando los datos de salida al solicitante.
+
+---
+
+### 3. Flujos Alternos
+
+* **Flujo Alterno A (Sin drones disponibles):**
+  * *Condición:* Ningún drone en la zona está disponible con batería $\ge 35\%$.
+  * *Resultado:* El sistema encola la solicitud, emite advertencia al operador y no altera el estado de la flota remanente.
+* **Flujo Alterno B (Condiciones hídricas adversas):**
+  * *Condición:* La API reporta ráfagas severas o agitación por encima del umbral estructural de los drones.
+  * *Resultado:* Se aborta el despacho, emite alerta de severidad `ADVERTENCIA` al Centro de Control y notifica al solicitante la suspensión preventiva por clima.
+* **Flujo Alterno C (Carga supera capacidad del tipo):**
+  * *Condición:* Se solicita una inmersión profunda (`DroneBuceador`) pero el peso de la muestra es $> 300\text{ g}$ (ej. 450 g).
+  * *Resultado:* El sistema bloquea la asignación lanzando `IllegalStateException`, notificando que el `DroneBuceador` tiene límite de 300g y sugiriendo fraccionar la carga.
+
+---
+
+### 4. Reglas de Negocio Clave (RN)
+
+* **RN-01 (Autonomía mínima de despegue):** Mínimo **$35\%$ de batería** para misiones estándar; mínimo **$50\%$ de batería** para misiones de prioridad `CRITICA`.
+* **RN-02 (Límites de carga por modelo):**
+  * 🤿 `DroneBuceador`: Hasta **$300\text{ g}$** ($0.30\text{ kg}$). Prohibido para cargas superiores.
+  * 🚤 `DroneSuperficial`: Hasta **$500\text{ g}$** ($0.50\text{ kg}$).
+  * 🚢 `DroneSemisumergido`: Hasta **$1500\text{ g}$** ($1.50\text{ kg}$).
+* **RN-03 (Compatibilidad de casco con hidrodinámica):** Prohibido asignar `DroneSuperficial` en aguas agitadas o misiones subacuáticas.
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
 La suite de pruebas contiene **35 pruebas unitarias** pasando al 100%:
