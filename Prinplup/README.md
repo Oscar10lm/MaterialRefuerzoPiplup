@@ -489,14 +489,94 @@ flowchart TD
 
 ---
 
+## 📋 Reto 06: Especificación de Requisitos (RF/RNF), Priorización MoSCoW y Resolución de Tensión AP-07 vs AP-08
+
+> 📄 *Documentación formal completa disponible en: [`docs/requisitos-moscow-prinplup.md`](file:///docs/requisitos-moscow-prinplup.md)*
+
+### 1. Cuatro Nuevos Requisitos Funcionales (RF) — v2
+* **RF-01 (Asignación Automática por Strategy):**  
+  *Actor:* Sistema AquaPort / Solicitante.  
+  *Acción:* Evalúa la flota de 15 drones y selecciona automáticamente la unidad óptima según la política activa ([`MayorBateriaStrategy`](file:///Prinplup/src/aquaport/service/strategy/MayorBateriaStrategy.java), [`ZonaCercanaStrategy`](file:///Prinplup/src/aquaport/service/strategy/ZonaCercanaStrategy.java) o [`PrioridadCriticaStrategy`](file:///Prinplup/src/aquaport/service/strategy/PrioridadCriticaStrategy.java)).  
+  *Resultado Observable:* Drone reservado, misión en estado `PENDIENTE` y confirmación de plan de ruta.
+* **RF-02 (Alertas de Fallo en Tiempo Real - Observer):**  
+  *Actor:* Sistema AquaPort / Centro de Control / Técnico de Mantenimiento.  
+  *Acción:* Al detectarse un drone en estado `FALLO` o batería crítica $< 20\%$, emite el evento síncrono a todos los observadores registrados.  
+  *Resultado Observable:* Alerta severa en [`CentroControlObserver`](file:///Prinplup/src/aquaport/service/observer/CentroControlObserver.java) y orden técnica prioritaria con diagnóstico en [`TecnicoMantenimientoObserver`](file:///Prinplup/src/aquaport/service/observer/TecnicoMantenimientoObserver.java).
+* **RF-03 (Consulta y Filtrado por Condiciones Hídricas):**  
+  *Actor:* Sistema AquaPort (consumiendo la *API Condiciones Hídricas*).  
+  *Acción:* Consulta las condiciones limnológicas (`CALMA`, `AGITADA`, `PROFUNDA`) antes de autorizar la misión.  
+  *Resultado Observable:* Filtra y descarta drones incompatibles de casco/inmersión (solo `Superficial` en aguas calmas $\le 500\text{g}$, `Semisumergido` en aguas agitadas $\le 1.5\text{kg}$, y `Buceador` en profundidad $\le 300\text{g}$).
+* **RF-04 (Gestión de Órdenes y Reintegración por Técnico):**  
+  *Actor:* Técnico de Mantenimiento.  
+  *Acción:* Consulta los diagnósticos de fallo, efectúa las reparaciones mecánicas/electrónicas y reporta la finalización en el sistema.  
+  *Resultado Observable:* El drone transiciona a `DISPONIBLE`, restableciendo su elegibilidad para nuevas asignaciones autónomas.
+
+---
+
+### 2. Cuatro Requisitos No Funcionales (RNF) con Métrica Objetiva Concreta
+
+> [!TIP]
+> **Sin ambigüedades:** Todo RNF declara métrica cuantitativa, condición de carga y método/instrumento de verificación reproducible.
+
+| ID | Requisito No Funcional | Métrica Objetiva Concreta | Método de Verificación |
+|---|---|---|---|
+| **RNF-01** | **Rendimiento de Asignación Automática** | Selección y asignación del drone óptimo en **$< 400\text{ ms}$** para una flota ampliada de hasta **30 drones** en memoria. | Test unitario con JUnit 5: `assertTimeout(Duration.ofMillis(400), ...)` en [`AsignadorAutomaticoMisionesTest`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java). |
+| **RNF-02** | **Latencia de Despacho de Eventos (Observer)** | Tiempo total de notificación a observadores **$\le 50\text{ ms}$** con tasa de entrega del **$100\%$** (0 eventos perdidos). | Test de integración con Mockito: `verify(..., times(1)).notificarFallo(...)` y cronometrado en [`PatronesDisenoIntegracionTest`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java). |
+| **RNF-03** | **Robustez e Invariantes de Seguridad (*Fail-Fast*)** | **$0$** asignaciones con batería $< 35\%$ ($< 50\%$ en críticas) o sobrepeso, con rechazo tipado en **$< 10\text{ ms}$**. | Aserciones negativas de JUnit 5: `assertThrows(IllegalStateException.class, ...)` en validadores y asignador. |
+| **RNF-04** | **Extensibilidad Arquitectónica (OCP)** | **$0$ líneas modificadas** en [`AsignadorAutomaticoMisiones.java`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java) al agregar un 4to tipo de drone o nueva estrategia. | Prueba automatizada en [`SolidPrincipiosTest`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java) y verificación con `git diff`. |
+
+---
+
+### 3. Matriz de Priorización MoSCoW
+
+| ID | Tipo | Prioridad | Justificación MoSCoW |
+|---|---|---|---|
+| **RF-01** | Funcional | **Must Have** | Capacidad nuclear que sustituye la asignación manual humana por decisiones algorítmicas autónomas. |
+| **RF-02** | Funcional | **Must Have** | Crítico para evitar el extravío o hundimiento de drones ante fallas en los embalses. |
+| **RF-03** | Funcional | **Must Have** | Previene volcamientos de drones ligeros en zonas de corriente y oleaje moderado. |
+| **RF-04** | Funcional | **Should Have** | Necesario para la autosostenibilidad de la flota en el mediano plazo tras reparaciones. |
+| **RNF-01** | No Funcional | **Must Have** | Respuestas sub-segundo garantizan que no haya bloqueos en despachos de emergencia. |
+| **RNF-02** | No Funcional | **Must Have** | La cuadrilla técnica requiere enterarse de forma instantánea ante un fallo físico. |
+| **RNF-03** | No Funcional | **Must Have** | La seguridad física de equipos y preservación del agua es la restricción máxima ineludible. |
+| **RNF-04** | No Funcional | **Should Have** | Mantiene bajo costo de mantenimiento al expandir la flota institucional con nuevos modelos. |
+
+---
+
+### ⚡ 4. Detección y Resolución de la Tensión: AP-07 vs. AP-08
+
+#### 🔍 La Tensión Detectada:
+* **AP-07:** *El sistema asigna automáticamente el drone de mayor batería disponible para cualquier misión hídrica.*
+* **AP-08:** *Las misiones CRÍTICAS tienen prioridad absoluta: deben recibir el drone técnicamente más apto para la zona, independientemente de la batería.*
+
+**¿Por qué no son contradictorios?**  
+Porque aplican bajo objetivos operacionales distintos: AP-07 rige misiones ordinarias para balancear el ciclo de vida de las celdas eléctricas; AP-08 rige contingencias ambientales donde lo que prima es la supervivencia de la misión y la adecuación estructural del casco.
+
+**¿Dónde radica la tensión real?**  
+Si coexisten en el mismo cuerpo de agua:
+1. Un `DroneSuperficial` con **$95\%$ de batería** (máxima batería, pero frágil ante turbulencia).
+2. Un `DroneSemisumergido` con **$88\%$ de batería** (especializado para corrientes y agitación).
+
+Si se aplica ciegamente **AP-07**, se elegiría el Superficial de 95%, resultando en volcamiento. Si se aplica **AP-08** sin umbrales ("independientemente de la batería"), se podría despachar un Semisumergido con solo 5% de batería, apagándose en mitad del embalse.
+
+#### 🛠️ Resolución Arquitectónica en AquaPort v2:
+1. **Fase 1 — Invariante Físico de Aptitud (Hard Filter):** Ningún drone participa en la selección si no es apto para la zona y condición hídrica (`condicionAgua.esCompatibleCon(d.getTipo())`) y si su carga útil no soporta el peso (`capacidadCargaKg >= peso`).
+2. **Fase 2 — Umbral Diferenciado de Seguridad de Batería:**
+   * Misión Estándar: Batería $\ge 35\%$.
+   * Misión Crítica: Batería $\ge 50\%$ ([`PrioridadCriticaStrategy.BATERIA_MINIMA_CRITICA`](file:///Prinplup/src/aquaport/service/strategy/PrioridadCriticaStrategy.java)).
+3. **Fase 3 — Conmutación Heurística Polimórfica (Strategy Pattern):**
+   * Ante prioridad `CRITICA`, el asignador emplea [`PrioridadCriticaStrategy`](file:///Prinplup/src/aquaport/service/strategy/PrioridadCriticaStrategy.java), la cual favorece el tipo de máxima robustez estructural ([`TipoDrone.SEMISUMERGIDO`](file:///Prinplup/src/aquaport/model/TipoDrone.java)) asegurando simultáneamente aptitud técnica (**AP-08**) y suficiente reserva energética (**AP-07**).
+   * Verificado formalmente en el test [`resolucionTension_ap07_vs_ap08_misionCriticaPriorizaAptitudTecnica`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java).
+
+---
+
 ## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
 
-La suite de pruebas contiene **33 pruebas unitarias** pasando al 100%:
+La suite de pruebas contiene **35 pruebas unitarias** pasando al 100%:
+* [`AsignadorAutomaticoMisionesTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java) (6 pruebas, incluyendo RNF-01 y resolución de tensión AP-07 vs AP-08)
 * [`SolidPrincipiosTest.java`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java) (4 pruebas: OCP, LSP, ISP, DIP)
 * [`ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java) (12 pruebas)
 * [`PatronesDisenoIntegracionTest.java`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java) (5 pruebas con Mockito)
 * [`FabricaDronesTest.java`](file:///Prinplup/test/aquaport/service/FabricaDronesTest.java) (4 pruebas)
-* [`AsignadorAutomaticoMisionesTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java) (4 pruebas)
 * [`CentroControlAlertasTest.java`](file:///Prinplup/test/aquaport/service/CentroControlAlertasTest.java) (4 pruebas)
 
 ```powershell
