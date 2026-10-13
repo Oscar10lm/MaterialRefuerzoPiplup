@@ -26,6 +26,27 @@ public class ValidadorMision {
         "Laboratorio Hídrico"
     );
 
+    public boolean tieneBateriaSuficiente(DroneAcuatico drone) {
+        if (drone == null) {
+            throw new IllegalArgumentException("El drone no puede ser nulo.");
+        }
+        return drone.bateria() >= BATERIA_MINIMA_DESPEGUE;
+    }
+
+    public boolean estaDisponible(DroneAcuatico drone) {
+        return drone.disponible();
+    }
+
+    public void validarPuntoLlegada(String puntoLlegada) {
+        if (puntoLlegada == null || puntoLlegada.isBlank()) {
+            throw new IllegalArgumentException("El punto de llegada no puede ser nulo ni vacío.");
+        }
+        boolean valida = ZONAS_HABILITADAS.stream().anyMatch(z -> z.equalsIgnoreCase(puntoLlegada));
+        if (!valida) {
+            throw new IllegalArgumentException("La zona '" + puntoLlegada + "' no es una zona habilitada del campus.");
+        }
+    }
+
     /**
      * Valida que una misión cumpla con todas las políticas de negocio operativas de AquaPort.
      *
