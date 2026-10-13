@@ -185,10 +185,50 @@ gitGraph
 
 ---
 
-## 🧪 Pruebas Unitarias (TDD / JUnit 5)
+## 🏗️ Patrones de Diseño de la v2 (Reto 03)
 
-La suite de pruebas contiene **24 pruebas unitarias** pasando al 100%:
+La arquitectura de AquaPort v2 integra tres patrones fundamentales del GoF:
+
+### 1. 🏭 Factory Method — ¿Cómo crear cada tipo de drone?
+* **Componente:** [`FabricaDrones`](file:///Prinplup/src/aquaport/service/FabricaDrones.java).
+* **Rol:** Encapsula la decisión de qué subclase polimórfica instanciar (`DroneSuperficial`, `DroneSemisumergido`, `DroneBuceador`) según el `TipoDrone` solicitado.
+* **Ventaja:** Incorporar nuevos tipos de drones no requiere tocar la lógica del asignador ni del consultor de flota (principio OCP).
+
+### 2. 🧭 Strategy — ¿Qué drone elegir?
+* **Contrato:** [`EstrategiaSeleccionDrone`](file:///Prinplup/src/aquaport/service/strategy/EstrategiaSeleccionDrone.java).
+* **Estrategias concretas:**
+  * [`MayorBateriaStrategy`](file:///Prinplup/src/aquaport/service/strategy/MayorBateriaStrategy.java): Maximiza la reserva energética.
+  * [`ZonaCercanaStrategy`](file:///Prinplup/src/aquaport/service/strategy/ZonaCercanaStrategy.java): Prioriza proximidad física para reducir traslados en vacío.
+  * [`PrioridadCriticaStrategy`](file:///Prinplup/src/aquaport/service/strategy/PrioridadCriticaStrategy.java): Exige batería $\ge 50\%$ y favorece drones de máxima robustez.
+* **Cero violaciones:** El [`AsignadorAutomaticoMisiones`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java) no contiene sentencias `instanceof`, delegando de forma 100% polimórfica en la estrategia activa.
+
+### 3. 📢 Observer — ¿Quién se entera del fallo?
+* **Contrato:** [`ObservadorFalloDrone`](file:///Prinplup/src/aquaport/service/observer/ObservadorFalloDrone.java).
+* **Observadores concretos:**
+  * [`CentroControlObserver`](file:///Prinplup/src/aquaport/service/observer/CentroControlObserver.java): Despacha alarmas de monitoreo y telemetría.
+  * [`TecnicoMantenimientoObserver`](file:///Prinplup/src/aquaport/service/observer/TecnicoMantenimientoObserver.java): Genera órdenes de trabajo inmediatas para el equipo técnico.
+* **Desacoplamiento:** Los observadores se suscriben o desuscriben dinámicamente (`agregarObservador`, `removerObservador`) sin tocar las clases de dominio.
+
+### 🧪 Verificación con Mockito (Notificación Exactamente 1 Vez)
+Prueba automatizada en [`PatronesDisenoIntegracionTest.java`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java):
+```java
+// Al registrar una misión con drone en estado FALLO:
+assertThrows(IllegalStateException.class, () -> asignador.registrarMision(misionConFallo));
+
+// Mockito verifica que cada observador registrado fue notificado exactamente 1 vez:
+verify(mockCentroControl, times(1)).notificarFallo(eq(droneEnFallo), anyString());
+verify(mockTecnicoMantenimiento, times(1)).notificarFallo(eq(droneEnFallo), anyString());
+verifyNoMoreInteractions(mockCentroControl);
+verifyNoMoreInteractions(mockTecnicoMantenimiento);
+```
+
+---
+
+## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
+
+La suite de pruebas contiene **29 pruebas unitarias** pasando al 100%:
 * [`ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java) (12 pruebas)
+* [`PatronesDisenoIntegracionTest.java`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java) (5 pruebas con Mockito)
 * [`FabricaDronesTest.java`](file:///Prinplup/test/aquaport/service/FabricaDronesTest.java) (4 pruebas)
 * [`AsignadorAutomaticoMisionesTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java) (4 pruebas)
 * [`CentroControlAlertasTest.java`](file:///Prinplup/test/aquaport/service/CentroControlAlertasTest.java) (4 pruebas)
