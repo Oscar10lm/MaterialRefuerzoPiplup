@@ -124,8 +124,8 @@ public class MainPrinplup {
 
     private static void imprimirEncabezado() {
         System.out.println("================================================================================");
-        System.out.println("  🐧 AQUAPORT v2 (PRINPLUP) — GESTIÓN AUTÓNOMA DE FLOTA DE 15 DRONES");
-        System.out.println("  🌊 Reto 01: Streams & Lambdas Avanzados en Flota Multimodal");
+        System.out.println("  🐧 AQUAPORT v2.0.0 (PRINPLUP) — GESTIÓN AUTÓNOMA DE FLOTA DE 15 DRONES");
+        System.out.println("  🌊 Release Oficial: Asignación Inteligente y Alertas del Centro de Control");
         System.out.println("================================================================================");
     }
 
