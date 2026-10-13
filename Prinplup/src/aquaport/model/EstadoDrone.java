@@ -8,7 +8,8 @@ public enum EstadoDrone {
     EN_MISION("Navegando o ejecutando transporte activo"),
     RECARGANDO("En estación de recarga de batería"),
     MANTENIMIENTO("En revisión técnica o fuera de servicio"),
-    SUMERGIDO("Operando en inmersión activa bajo el agua");
+    SUMERGIDO("Operando en inmersión activa bajo el agua"),
+    FALLO("Avería crítica, desvío de telemetría o falla de propulsión");
 
     private final String descripcion;
 
@@ -21,10 +22,17 @@ public enum EstadoDrone {
     }
 
     /**
-     * Determina si el drone se considera parte de la flota activa (no en mantenimiento/baja).
+     * Determina si el drone se considera parte de la flota activa (no en mantenimiento/baja/fallo).
      */
     public boolean isActivo() {
-        return this != MANTENIMIENTO;
+        return this != MANTENIMIENTO && this != FALLO;
+    }
+
+    /**
+     * Determina si el drone se encuentra en estado de falla o avería crítica.
+     */
+    public boolean isFallo() {
+        return this == FALLO;
     }
 
     /**
