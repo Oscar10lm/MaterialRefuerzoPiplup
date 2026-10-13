@@ -292,6 +292,45 @@ Puedes abrir directamente en el navegador el archivo interactivo del centro de c
 
 ---
 
+## 🧪 TDD — ValidadorMision (Reto 12)
+
+Ciclo **Red → Green → Refactor** aplicado en orden estricto (ver `git log`: las pruebas se commitean **antes** que el código de producción).
+
+| Fase | Commit | Qué se hizo |
+|---|---|---|
+| ⚙️ Setup | `chore: configurar Maven con JUnit 5...` | `pom.xml` con JUnit 5 (`src/` y `test/`) |
+| 🔴 **Red** | `test: escribir pruebas Red de ValidadorMision...` | 13 pruebas; no compilan porque los métodos no existen |
+| 🟢 **Green** | `feat: implementar metodos minimos...` | Código mínimo: las 13 pruebas pasan |
+| 🔵 **Refactor** | `refactor: extraer helpers en ValidadorMision...` | Se elimina duplicación; las 13 siguen en verde |
+
+### Casos cubiertos (`Piplup/test/aquaport/service/ValidadorMisionTest.java`)
+
+| Caso | Tipo | Resultado esperado |
+|---|---|---|
+| Batería 85% | Happy path | `tieneBateriaSuficiente` → `true` |
+| Batería 18% | Negativo | → `false` |
+| Batería exacta 35% | Borde | → `true` |
+| Batería 34% | Borde | → `false` |
+| Drone nulo | Negativo | `IllegalArgumentException` |
+| Drone con `disponible = true` | Happy path | `estaDisponible` → `true` |
+| Drone con `disponible = false` (batería 95%) | Negativo | → `false` |
+| Punto de llegada `null` | Negativo | `IllegalArgumentException` |
+| Punto de llegada `""` | Negativo | `IllegalArgumentException` |
+| Punto de llegada `"   "` | Negativo | `IllegalArgumentException` |
+| `"Laboratorio Hídrico"` | Happy path | No lanza excepción |
+| `"Océano Pacífico"` (zona inválida) | Edge | `IllegalArgumentException` |
+| `"EMBALSE NORTE"` | Edge | No lanza excepción (sin distinguir mayúsculas) |
+
+Buenas prácticas aplicadas: patrón **AAA** (Arrange-Act-Assert), `@DisplayName` en cada prueba, **un solo assert por prueba**, y casos negativos y de borde además del happy path.
+
+### ▶️ Ejecutar las pruebas
+
+```powershell
+mvn -f Piplup/pom.xml test
+```
+
+---
+
 ## 💻 Compilación y Ejecución Manual
 
 Desde la raíz del repositorio:
@@ -300,6 +339,7 @@ Desde la raíz del repositorio:
 javac -d bin Piplup/src/aquaport/model/*.java Piplup/src/aquaport/repository/*.java Piplup/src/aquaport/service/*.java Piplup/src/aquaport/*.java
 java -cp bin aquaport.Main
 ```
+
 
 
 
