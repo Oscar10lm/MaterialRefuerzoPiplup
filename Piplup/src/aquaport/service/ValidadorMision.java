@@ -78,19 +78,25 @@ public class ValidadorMision {
             throw new IllegalArgumentException("No se puede validar una misión nula.");
         }
 
+        String partida = mision.getPuntoPartida();
+        String llegada = mision.getPuntoLlegada();
+        if (partida == null || partida.isBlank() || llegada == null || llegada.isBlank()) {
+            throw new IllegalStateException("Regla de negocio violada (RN-02): Los puntos de partida y llegada no pueden ser nulos ni vacíos.");
+        }
+
         // Regla 1: Trayecto coherente (origen != destino)
-        if (mision.getPuntoPartida().equalsIgnoreCase(mision.getPuntoLlegada())) {
+        if (partida.equalsIgnoreCase(llegada)) {
             throw new IllegalStateException(String.format(
                 "Regla de negocio violada (RN-02): El punto de partida '%s' no puede ser idéntico al de llegada.",
-                mision.getPuntoPartida()
+                partida
             ));
         }
 
         // Regla 1b: Puntos pertenecientes a zonas oficiales de la ECI
-        if (!esZonaHabilitada(mision.getPuntoPartida()) || !esZonaHabilitada(mision.getPuntoLlegada())) {
+        if (!esZonaHabilitada(partida) || !esZonaHabilitada(llegada)) {
             throw new IllegalStateException(String.format(
                 "Regla de negocio violada (RN-02): Ruta con zonas no habilitadas en el campus (Origen: '%s', Destino: '%s').",
-                mision.getPuntoPartida(), mision.getPuntoLlegada()
+                partida, llegada
             ));
         }
 
