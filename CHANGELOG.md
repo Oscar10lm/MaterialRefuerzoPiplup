@@ -50,6 +50,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`e5d8ad3`] **docs(empoleon): documentar patrones Chain, Decorator, Adapter y principios SOLID** *(por Oscar10lm el 2026-10-17)*
 - [`7aa844b`] **docs(empoleon): documentar retos 01 y 02 y consolidar CHANGELOG automatico** *(por Oscar10lm el 2026-10-17)*
 - [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
 - [`7a314c0`] **docs(prinplup-ux): implementar Reto 11 Mocks con IA y diseno de pantallas de asignacion autonoma** *(por Oscar10lm el 2026-10-17)*
@@ -64,7 +65,6 @@
 - [`8e0eff4`] **docs: documentar analisis SonarQube, metricas de calidad y dashboard en README (Reto 14)** *(por Oscar10lm el 2026-10-12)*
 - [`14a8b68`] **docs: documentar resultados de JaCoCo y adjuntar captura del reporte de cobertura** *(por Oscar10lm el 2026-10-12)*
 - [`1ddf681`] **docs: documentar ciclo TDD y casos de prueba de ValidadorMision** *(por Oscar10lm el 2026-10-12)*
-- [`353acd4`] **docs: integrar prototipo interactivo HTML de la estacion de control en README** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 
