@@ -50,6 +50,9 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`a26d8e3`] **docs(empoleon-rf): documentar 5 RF, 5 RNF, MoSCoW y analisis de tensiones** *(por Oscar10lm el 2026-10-17)*
+- [`db67ab6`] **docs(empoleon-c4): disenar diagrama C4 nivel 2 de contenedores** *(por Oscar10lm el 2026-10-17)*
+- [`5e2ecc9`] **docs: actualizar CHANGELOG tras merge de Retos 03 y 04 Empoleon** *(por Oscar10lm el 2026-10-17)*
 - [`e5d8ad3`] **docs(empoleon): documentar patrones Chain, Decorator, Adapter y principios SOLID** *(por Oscar10lm el 2026-10-17)*
 - [`7aa844b`] **docs(empoleon): documentar retos 01 y 02 y consolidar CHANGELOG automatico** *(por Oscar10lm el 2026-10-17)*
 - [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
@@ -62,9 +65,6 @@
 - [`c17965c`] **docs(prinplup): documentar auditoria y cumplimiento de principios SOLID en README (Reto 04)** *(por Oscar10lm el 2026-10-12)*
 - [`41b83c5`] **docs(prinplup): documentar flujo GitFlow con diagrama Mermaid, ramas y tags (Reto 02)** *(por Oscar10lm el 2026-10-12)*
 - [`14e6e97`] **docs(prinplup): documentar contexto v2, consultas funcionales y ejecucion en README (Reto 01)** *(por Oscar10lm el 2026-10-12)*
-- [`8e0eff4`] **docs: documentar analisis SonarQube, metricas de calidad y dashboard en README (Reto 14)** *(por Oscar10lm el 2026-10-12)*
-- [`14a8b68`] **docs: documentar resultados de JaCoCo y adjuntar captura del reporte de cobertura** *(por Oscar10lm el 2026-10-12)*
-- [`1ddf681`] **docs: documentar ciclo TDD y casos de prueba de ValidadorMision** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 

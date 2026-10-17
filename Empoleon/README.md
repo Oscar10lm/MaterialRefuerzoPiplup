@@ -250,6 +250,58 @@ La API meteorológica externa de la ECI entrega campos en inglés (`waterLevel`,
 
 ---
 
+## 🏛️ Reto 05: Diagrama de Contenedores C4 (Nivel 2)
+
+Para la escala de producción de **AquaPort Enterprise**, el modelo C4 se amplía al **Nivel 2 (Contenedores)**, detallando los subsistemas de software ejecutables, los almacenes de datos y la integración con sistemas externos:
+
+![Diagrama de Contenedores C4 Nivel 2](../docs/c4-contenedores-empoleon.png)
+
+* Archivo de imagen de alta resolución: [`docs/c4-contenedores-empoleon.png`](file:///docs/c4-contenedores-empoleon.png)
+* Definición de arquitectura en PlantUML: [`docs/c4-contenedores-empoleon.puml`](file:///docs/c4-contenedores-empoleon.puml)
+* Generador programático en Python/PIL: [`docs/generate_c4_img.py`](file:///docs/generate_c4_img.py)
+
+### Catálogo de Contenedores y Flujos de Comunicación
+
+| Contenedor / Sistema | Tipo / Tecnología | Responsabilidad Nuclear | Protocolo y Datos que Fluyen |
+|---|---|---|---|
+| **Panel de Control Web** | SPA (HTML5 / JS / CSS) | Dashboard interactivo para operadores y científicos con monitoreo geoespacial en vivo de los 60 drones. | **HTTPS / GUI** hacia Operador; **HTTPS / REST JSON** hacia Core; **WSS** hacia Módulo de Telemetría. |
+| **AquaPort Core Service** | Java 21 / Spring Boot | Núcleo de orquestación: planificación de rutas multi-etapa, validación Chain, reasignación automática ante fallos y cálculo O(N). | **HTTPS / REST JSON** con SPA; **TCP / JDBC** con PostgreSQL; llamadas in-memory al adaptador. |
+| **Módulo de Telemetría** | Java 21 Worker / MQTT | Ingesta masiva concurrente de telemetría, sobre cifrado AES-256 (Decorator), bitácora inmutable y detección síncrona de fallos. | **MQTTS / TLS** con 60 drones IoT; **WSS** con SPA; **TCP / JDBC** (batch insert) con BD. |
+| **BD Misiones y Telemetría** | PostgreSQL 16 + TimescaleDB | Persistencia relacional de drones, misiones, tramos, actas inmutables de cadena de custodia y series temporales de telemetría. | **TCP / JDBC (Puerto 5432)** para transacciones ACID y series de tiempo. |
+| **Adaptador API Hídrica** | Java Ports & Adapters | Aísla la infraestructura externa traduciendo JSON en inglés (`waterLevel`, `turbidity`) a modelos puros de dominio con caché. | **Java Interface** hacia Core (`ProveedorCondicionesHidricas`); **HTTPS / REST JSON** hacia API Externa. |
+| **Flota 60 Drones IoT** | Sistema Externo (IoT) | 60 unidades acuáticas (20 Superficial, 20 Semisumergido, 20 Buceador) en 4 zonas con navegación GPS y actuadores. | **MQTTS / TLS [Sobre AES-256]** con Módulo de Telemetría. |
+| **Sistema GIS ECI** | Sistema Externo (GIS) | Infraestructura cartográfica vectorial del campus, límites de cuencas y geocercas de boyas de muestreo. | **HTTPS / WFS GeoJSON** hacia Core Service. |
+| **Sistema LIMS Central** | Sistema Externo (LIMS) | Sistema de información del laboratorio limnológico; recibe actas digitales inmutables de cadena de custodia. | **HTTPS REST / AMQP** hacia Core Service. |
+| **API Meteorológica Hídrica** | Sistema Externo (IDEAM / Red ECI) | Red de boyas y sensores que miden nivel de agua, turbidez, temperatura y profundidad en tiempo real. | **HTTPS / REST JSON** hacia Adaptador API Hídrica. |
+
+---
+
+## 📋 Reto 06: Requisitos Funcionales (RF), No Funcionales (RNF) y MoSCoW
+
+Documento maestro detallado: [`docs/requisitos-moscow-empoleon.md`](file:///docs/requisitos-moscow-empoleon.md).
+
+### 1. Cinco Requisitos Funcionales Enterprise (RF)
+1. **RF-01 (Must Have): Rutas Multi-Etapa con Waypoints y Traspasos:** Descomposición de la travesía en tramos consecutivos asignando un drone especializado por cuerpo de agua con traspasos coordinados en boyas y esclusas.
+2. **RF-02 (Must Have): Reasignación Automática Inmediata ante Fallo en Waypoint:** Localización y despacho autónomo de un drone de relevo en la misma zona hídrica ante batería crítica ($< 35\%$) o avería física sin abortar la misión global.
+3. **RF-03 (Must Have): Trazabilidad Digital Inmutable de la Cadena de Custodia:** Generación de actas criptográficas (hash SHA-256, ID drone custodio, GPS, timestamp, temperatura) en cada relevo para integración con el LIMS central.
+4. **RF-04 (Should Have): Coordinación Interzonal y Gestión de Esclusas:** Sincronización de tráfico entre las 4 zonas hídricas para prevenir colisiones en canales angostos y garantizar ventanas de arribo (*ETA*).
+5. **RF-05 (Should Have): Reportes Analíticos de Eficiencia Zonal en Tiempo Real:** Cómputo en una sola pasada $O(N)$ de la tasa de misiones completadas vs canceladas/fallidas, carga activa y promedios de batería.
+
+### 2. Cinco Requisitos No Funcionales de Producción (RNF)
+1. **RNF-01 (Must Have): SLA de Disponibilidad $\ge 99.9\%$:** Menos de 43.8 minutos/mes de indisponibilidad no planificada bajo operación continua 24/7 de 60 drones.
+2. **RNF-02 (Must Have): Tiempo Máximo de Reasignación $\le 3.0\text{ segundos}$ (P99):** Latencia desde la confirmación de fallo hasta la reserva y notificación de la unidad de relevo.
+3. **RNF-03 (Must Have): Throughput de Misiones Simultáneas $\ge 50$:** Capacidad de orquestar al menos 50 rutas multi-etapa concurrentes con latencia en API REST $< 500\text{ ms}$ (P95).
+4. **RNF-04 (Should Have): Cifrado Zero Trust AES-256 / TLS 1.3:** 100% de los paquetes de telemetría y actas de custodia encriptados con overhead $\le 5\text{ ms}$ por paquete.
+5. **RNF-05 (Should Have): Complejidad $O(N)$ en una Sola Pasada:** Agregación analítica de batería y eficiencia zonal en tiempo $\le 15\text{ ms}$ para flotas de hasta 500 drones.
+
+### 3. Matriz de Tensiones entre Requisitos
+* **Tensión 1 (Rutas Multi-Etapa vs Reasignación en Caliente):** Resuelta mediante el protocolo *Two-Phase Dynamic Handover Lock* (reservas blandas a futuro que se vuelven inmutables al iniciar la aproximación al waypoint).
+* **Tensión 2 (Cadena de Custodia Inmutable vs Latencia $\le 3.0\text{s}$):** Resuelta con sellado criptográfico síncrono en memoria (< 2 ms) y persistencia asíncrona por lotes (*Write-Ahead Logging*).
+* **Tensión 3 (Coordinación Interzonal Centralizada vs SLA 99.9%):** Resuelta mediante *Autonomous Local Zone Gateway Fallback* (conmutación autónoma a enlace local LoRa/Zigbee entre drone y esclusa ante pérdida de conexión con el Core).
+* **Tensión 4 (Reportes Analíticos vs Throughput de Misiones):** Resuelta mediante el colector de una sola pasada [`BateriaPromedioCollector`](file:///Empoleon/src/aquaport/service/BateriaPromedioCollector.java) que no compite por bloqueos transaccionales.
+
+---
+
 ## 💻 Ejecución de la Demostración Enterprise
 
 ```powershell
