@@ -49,7 +49,18 @@ public class CentroControlAlertas {
             ));
         }
 
-        // Caso 2: Drone en mantenimiento/fallo
+        // Caso 2: Drone en fallo crítico
+        if (drone.getEstado() == EstadoDrone.FALLO) {
+            return Optional.of(emitirAlerta(
+                    drone.getId(),
+                    NivelAlerta.CRITICA,
+                    drone.getZona(),
+                    String.format("Drone '%s' en estado de FALLO crítico en zona '%s'. Inspección técnica urgente requerida.",
+                            drone.getId(), drone.getZona())
+            ));
+        }
+
+        // Caso 3: Drone en mantenimiento programado
         if (drone.getEstado() == EstadoDrone.MANTENIMIENTO) {
             return Optional.of(emitirAlerta(
                     drone.getId(),

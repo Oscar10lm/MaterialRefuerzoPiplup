@@ -8,6 +8,7 @@ import aquaport.model.Prioridad;
 import aquaport.model.TipoCarga;
 import aquaport.model.ZonasCampus;
 import aquaport.model.EstadoDrone;
+import aquaport.model.EstadoMision;
 import aquaport.model.TipoDrone;
 import aquaport.service.strategy.PrioridadCriticaStrategy;
 import org.junit.jupiter.api.BeforeEach;
@@ -124,5 +125,133 @@ class AsignadorAutomaticoMisionesTest {
         assertEquals("DM-03", seleccionadoCritico.get().getId());
         assertEquals(TipoDrone.SEMISUMERGIDO, seleccionadoCritico.get().getTipo());
         assertTrue(seleccionadoCritico.get().getBateria() >= PrioridadCriticaStrategy.BATERIA_MINIMA_CRITICA);
+    }
+
+    // -------------------------------------------------------------------------
+    // Cobertura de Ramas Amarillas (Reto 13 Prinplup)
+    // -------------------------------------------------------------------------
+
+    @Test
+    @DisplayName("Rama Amarilla: Parámetros nulos en seleccionarDroneOptimo retornan Optional.empty()")
+    void seleccionarDroneOptimo_parametrosNulos_retornaVacio() {
+        // flota == null
+        assertTrue(asignador.seleccionarDroneOptimo(null, ZonasCampus.EMBALSE_NORTE, CondicionAgua.TRANQUILA, 0.300, Prioridad.NORMAL).isEmpty());
+        // zona == null
+        assertTrue(asignador.seleccionarDroneOptimo(flota, null, CondicionAgua.TRANQUILA, 0.300, Prioridad.NORMAL).isEmpty());
+        // condicion == null
+        assertTrue(asignador.seleccionarDroneOptimo(flota, ZonasCampus.EMBALSE_NORTE, null, 0.300, Prioridad.NORMAL).isEmpty());
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: Drones con batería inferior al umbral operativo (< 35%) son descartados")
+    void seleccionarDroneOptimo_bateriaMenorA35_descartada() {
+        // En Laboratorio Hídrico el único disponible es DB-04 (Buceador) con 30% de batería (< 35%)
+        Optional<DroneAcuatico> seleccionado = asignador.seleccionarDroneOptimo(
+                flota, ZonasCampus.LABORATORIO_HIDRICO, CondicionAgua.PROFUNDA, 0.100, Prioridad.NORMAL
+        );
+        assertTrue(seleccionado.isEmpty(), "Un drone con 30% de batería debe ser descartado por BATERIA_MINIMA_OPERATIVA (35%)");
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: Sobrecarga de 4 parámetros de seleccionarDroneOptimo delega con Prioridad.NORMAL")
+    void seleccionarDroneOptimo_sobrecarga4Parametros_asignaNormal() {
+        Optional<DroneAcuatico> seleccionado = asignador.seleccionarDroneOptimo(
+                flota, ZonasCampus.EMBALSE_NORTE, CondicionAgua.TRANQUILA, 0.300
+        );
+        assertTrue(seleccionado.isPresent());
+        assertEquals("DS-01", seleccionado.get().getId());
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: Gestión defensiva de observadores (nulls, duplicados, desuscripción y lista inmutable)")
+    void gestionObservadores_ramasDefensivas() {
+        List<String> alertas = new ArrayList<>();
+        aquaport.service.observer.ObservadorFalloDrone obs = (d, m) -> alertas.add(m);
+
+        // Agregar null no debe fallar ni agregar nada
+        asignador.agregarObservador(null);
+        assertEquals(0, asignador.getObservadores().size());
+
+        // Agregar observador legítimo
+        asignador.agregarObservador(obs);
+        assertEquals(1, asignador.getObservadores().size());
+
+        // Agregar observador duplicado no debe duplicar la entrada
+        asignador.agregarObservador(obs);
+        assertEquals(1, asignador.getObservadores().size());
+
+        // Intentar modificar getObservadores() directamente debe lanzar UnsupportedOperationException
+        List<aquaport.service.observer.ObservadorFalloDrone> lista = asignador.getObservadores();
+        assertThrows(UnsupportedOperationException.class, () -> lista.add(obs));
+
+        // Remover observador inexistente y existente
+        asignador.removerObservador((d, m) -> {});
+        assertEquals(1, asignador.getObservadores().size());
+
+        asignador.removerObservador(obs);
+        assertEquals(0, asignador.getObservadores().size());
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: Constructor con estrategia nula aplica MayorBateriaStrategy por defecto y setEstrategia valida nulidad")
+    void constructorYSetEstrategia_validaciones() {
+        AsignadorAutomaticoMisiones asignadorPorDefecto = new AsignadorAutomaticoMisiones(null);
+        assertNotNull(asignadorPorDefecto.getEstrategia());
+        assertEquals("MayorBateriaStrategy", asignadorPorDefecto.getEstrategia().getNombre());
+
+        assertThrows(NullPointerException.class, () -> asignador.setEstrategia(null));
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: registrarMision con drone en estado saludable (DISPONIBLE) completa exitosamente")
+    void registrarMision_droneSaludable_retornaMisionSinNotificarObservadores() {
+        List<String> fallos = new ArrayList<>();
+        asignador.agregarObservador((d, m) -> fallos.add(m));
+
+        DroneAcuatico droneOk = flota.get(0); // DS-01, DISPONIBLE
+        Mision misionOk = new Mision("MIS-OK", droneOk, ZonasCampus.EMBALSE_NORTE, ZonasCampus.LAGUNA_SUR,
+                Prioridad.NORMAL, TipoCarga.MUESTRA_AGUA, EstadoMision.PENDIENTE);
+
+        Mision misionRegistrada = asignador.registrarMision(misionOk);
+        assertNotNull(misionRegistrada);
+        assertEquals("MIS-OK", misionRegistrada.getId());
+        assertTrue(fallos.isEmpty(), "No deben haberse emitido notificaciones de fallo para un drone saludable");
+
+        // Rama: drone == null en mision mockeada completa limpiamente sin lanzar
+        Mision mockMisionSinDrone = org.mockito.Mockito.mock(Mision.class);
+        org.mockito.Mockito.when(mockMisionSinDrone.getDrone()).thenReturn(null);
+        assertEquals(mockMisionSinDrone, asignador.registrarMision(mockMisionSinDrone));
+
+        // Nulidad de mision a registrar
+        assertThrows(NullPointerException.class, () -> asignador.registrarMision(null));
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: Validaciones de nulidad en asignarMisionAutomaticamente")
+    void asignarMisionAutomaticamente_validacionesNulidad() {
+        assertThrows(NullPointerException.class, () ->
+                asignador.asignarMisionAutomaticamente(null, flota, "A", "B", CondicionAgua.TRANQUILA, TipoCarga.MUESTRA_AGUA, Prioridad.NORMAL));
+        assertThrows(NullPointerException.class, () ->
+                asignador.asignarMisionAutomaticamente("M-01", flota, null, "B", CondicionAgua.TRANQUILA, TipoCarga.MUESTRA_AGUA, Prioridad.NORMAL));
+        assertThrows(NullPointerException.class, () ->
+                asignador.asignarMisionAutomaticamente("M-01", flota, "A", null, CondicionAgua.TRANQUILA, TipoCarga.MUESTRA_AGUA, Prioridad.NORMAL));
+        assertThrows(NullPointerException.class, () ->
+                asignador.asignarMisionAutomaticamente("M-01", flota, "A", "B", CondicionAgua.TRANQUILA, null, Prioridad.NORMAL));
+    }
+
+    @Test
+    @DisplayName("Rama Amarilla: Asignación con prioridades ALTA y BAJA preservadas en la misión creada")
+    void asignarMisionAutomaticamente_prioridadesAltaYBaja() {
+        Mision misionAlta = asignador.asignarMisionAutomaticamente(
+                "M-ALTA", flota, ZonasCampus.EMBALSE_NORTE, ZonasCampus.CANAL_CENTRAL,
+                CondicionAgua.TRANQUILA, TipoCarga.SENSOR, Prioridad.ALTA
+        );
+        assertEquals(Prioridad.ALTA, misionAlta.getPrioridad());
+
+        Mision misionBaja = asignador.asignarMisionAutomaticamente(
+                "M-BAJA", flota, ZonasCampus.EMBALSE_NORTE, ZonasCampus.LAGUNA_SUR,
+                CondicionAgua.TRANQUILA, TipoCarga.PAQUETE_LIGERO, Prioridad.BAJA
+        );
+        assertEquals(Prioridad.BAJA, misionBaja.getPrioridad());
     }
 }
