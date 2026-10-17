@@ -60,7 +60,10 @@ public class Mision {
 
     @Override
     public String toString() {
-        return String.format("[%s | %-7s] %s -> %s | Drone: %s (Bat: %d%%) | Carga: %s | Est: %s",
-                id, prioridad.name(), puntoPartida, puntoLlegada, drone.getId(), drone.getBateria(), tipoCarga.name(), estado.name());
+        String droneInfo = (drone != null)
+                ? String.format("%s (Bat: %d%%)", drone.getId(), drone.getBateria())
+                : "SIN_ASIGNAR";
+        return String.format("[%s | %-7s] %s -> %s | Drone: %s | Carga: %s | Est: %s",
+                id, prioridad.name(), puntoPartida, puntoLlegada, droneInfo, tipoCarga.name(), estado.name());
     }
 }

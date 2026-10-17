@@ -77,4 +77,25 @@ class CentroControlAlertasTest {
         assertEquals(1, criticas.size());
         assertEquals("D-02", criticas.get(0).droneId());
     }
+
+    @Test
+    @DisplayName("Genera alerta CRÍTICA cuando un drone entra en FALLO")
+    void evaluarEstadoDrone_fallo_generaAlertaCritica() {
+        DroneAcuatico droneFallo = new DroneSuperficial(
+                "DS-09", "Aqua-Skimmer S1", 80, EstadoDrone.FALLO, ZonasCampus.CANAL_CENTRAL
+        );
+
+        Optional<AlertaFlota> alerta = centroControl.evaluarEstadoDrone(droneFallo);
+
+        assertTrue(alerta.isPresent());
+        assertTrue(alerta.get().isCritica());
+        assertEquals(AlertaFlota.NivelAlerta.CRITICA, alerta.get().nivel());
+        assertTrue(alerta.get().mensaje().contains("FALLO crítico"));
+    }
+
+    @Test
+    @DisplayName("Drone nulo retorna Optional.empty sin fallar")
+    void evaluarEstadoDrone_droneNulo_retornaVacio() {
+        assertTrue(centroControl.evaluarEstadoDrone(null).isEmpty());
+    }
 }

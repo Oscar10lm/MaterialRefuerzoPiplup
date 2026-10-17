@@ -7,7 +7,8 @@ public enum TipoCarga {
     MUESTRA_AGUA("Muestra de agua para análisis ambiental", 0.250),
     SENSOR("Sensor hidrológico o boya de telemetría", 0.450),
     PAQUETE_LIGERO("Paquete de reactivos o insumos ligeros", 0.300),
-    CARGA_PESADA("Kit de muestreo pesado o batería de relevo", 1.200);
+    CARGA_PESADA("Kit de muestreo pesado o batería de relevo", 1.200),
+    EQUIPO_MEDICION("Equipo de medición o estación hidrológica portátil", 1.100);
 
     private final String descripcion;
     private final double pesoPromedioKg;

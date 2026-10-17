@@ -62,6 +62,10 @@ public class AsignadorAutomaticoMisiones {
         }
     }
 
+    public void registrarObservador(ObservadorFalloDrone observador) {
+        agregarObservador(observador);
+    }
+
     public void removerObservador(ObservadorFalloDrone observador) {
         observadores.remove(observador);
     }
@@ -110,6 +114,8 @@ public class AsignadorAutomaticoMisiones {
 
     /**
      * Construye y asigna automáticamente una misión empleando la estrategia activa.
+     * Si un drone seleccionado se detecta en FALLO, notifica a los observadores y busca un alternativo.
+     * Si no hay drones para una misión CRÍTICA, notifica inmediatamente a todos los observadores.
      */
     public Mision asignarMisionAutomaticamente(String idMision,
                                               List<DroneAcuatico> flota,
@@ -124,13 +130,53 @@ public class AsignadorAutomaticoMisiones {
         Objects.requireNonNull(tipoCarga, "El tipo de carga no puede ser nulo.");
 
         double pesoRequerido = tipoCarga.getPesoPromedioKg();
-        DroneAcuatico droneAsignado = seleccionarDroneOptimo(flota, puntoPartida, condicion, pesoRequerido, prioridad)
-                .orElseThrow(() -> new IllegalStateException(String.format(
+        List<DroneAcuatico> candidatosDisponibles = new ArrayList<>(flota != null ? flota : List.of());
+        DroneAcuatico droneAsignado = null;
+
+        while (true) {
+            Optional<DroneAcuatico> optDrone = seleccionarDroneOptimo(candidatosDisponibles, puntoPartida, condicion, pesoRequerido, prioridad);
+            if (optDrone.isEmpty()) {
+                String motivo = String.format(
                         "Asignación automática fallida: No hay drone disponible apto en '%s' para condición %s y carga de %.2fkg usando %s.",
-                        puntoPartida, condicion.name(), pesoRequerido, estrategia.getNombre()
-                )));
+                        puntoPartida, condicion != null ? condicion.name() : "N/A", pesoRequerido, estrategia.getNombre()
+                );
+                if (prioridad == Prioridad.CRITICA) {
+                    notificarObservadoresFallo(null, "ALERTA CRÍTICA: Misión '" + idMision + "' rechazada por falta de drones aptos en " + puntoPartida + ".");
+                }
+                throw new IllegalStateException(motivo);
+            }
+
+            DroneAcuatico candidato = optDrone.get();
+            if (candidato.getEstado() == EstadoDrone.FALLO) {
+                notificarObservadoresFallo(candidato, String.format("Drone '%s' en estado FALLO descartado durante asignación. Buscando alternativo.", candidato.getId()));
+                candidatosDisponibles.remove(candidato);
+            } else {
+                droneAsignado = candidato;
+                break;
+            }
+        }
 
         return new Mision(idMision, droneAsignado, puntoPartida, puntoLlegada, prioridad, tipoCarga, EstadoMision.PENDIENTE);
+    }
+
+    /**
+     * Asigna automáticamente un drone a una misión existente (Reto 12 TDD).
+     */
+    public Mision asignar(Mision mision, List<DroneAcuatico> flota, CondicionAgua condicion) {
+        Objects.requireNonNull(mision, "La misión no puede ser nula.");
+        return asignarMisionAutomaticamente(
+                mision.getId(),
+                flota,
+                mision.getPuntoPartida(),
+                mision.getPuntoLlegada(),
+                condicion != null ? condicion : CondicionAgua.TRANQUILA,
+                mision.getTipoCarga(),
+                mision.getPrioridad()
+        );
+    }
+
+    public Mision asignar(Mision mision, List<DroneAcuatico> flota) {
+        return asignar(mision, flota, CondicionAgua.TRANQUILA);
     }
 
     /**
