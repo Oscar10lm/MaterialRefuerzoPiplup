@@ -302,6 +302,84 @@ Documento maestro detallado: [`docs/requisitos-moscow-empoleon.md`](file:///docs
 
 ---
 
+## 📑 Reto 07: Plantilla DOSW (RF AP-15 Misión Multi-Etapa)
+
+Documento maestro formal: [`docs/plantilla-dosw-ap15.md`](file:///docs/plantilla-dosw-ap15.md).
+
+* **Código:** `AP-15` — *Ejecutar misión multi-etapa con waypoints y coordinación interzonal*.
+* **Flujo Básico de 9 Pasos:**
+  1. Recepción y parametrización de la solicitud (origen, waypoints, destino, carga, prioridad).
+  2. Descomposición algorítmica de la travesía en $N-1$ tramos consecutivos.
+  3. Consulta climática e hidrológica por tramo mediante el `AdaptadorAPIHidrica`.
+  4. Selección de drones especializados por cuerpo de agua (Canales $\to$ Superficial, Laguna $\to$ Semisumergido, Embalse Norte $\to$ Buceador).
+  5. Evaluación secuencial por la *Chain of Responsibility* (Batería $\to$ Carga $\to$ Zona $\to$ Condiciones Hídricas).
+  6. Sellado criptográfico del acta digital inicial de custodia (hash SHA-256 base + sobre AES-256).
+  7. Despacho y monitoreo telemétrico en tiempo real a $1\text{ Hz}$ con el decorador `DroneConMonitoreo`.
+  8. Coordinación de traspaso en waypoint/esclusa con verificación criptográfica y relevo físico.
+  9. Arribo al Laboratorio Hídrico Central, validación final de custodia y liquidación en LIMS.
+* **Tres Flujos Alternos de Contingencia:**
+  * **Flujo A (Fallo en Waypoint):** Reasignación automática en caliente en $\le 3.0\text{ segundos}$ seleccionando un drone de relevo con batería $\ge 50\%$ en la misma zona.
+  * **Flujo B (Condiciones Hídricas Adversas en Tramo):** Desvío dinámico de ruta calculando un canal secundario alternativo con verificación de autonomía.
+  * **Flujo C (Zona de Destino Inactiva o Saturada):** Maniobra de espera climatizada en boya de transferencia con refrigeración activa de muestra.
+* **Reglas de Negocio Clave:**
+  * Cadena de custodia encadenada: $H_k = \text{SHA-256}(H_{k-1} \;\|\; \text{DroneID}_k \;\|\; \text{WaypointID}_k \;\|\; \text{Temp}^\circ\text{C} \;\|\; \text{TimestampUTC})$.
+  * Umbrales de reasignación: pérdida de señal $> 5\text{s}$, descarga anómala de batería $> 2.5\times$ o desvío radial $> 15\text{m}$.
+
+---
+
+## 🎨 Reto 08: Sistema de Diseño e Identidad UX Enterprise
+
+Documento maestro detallado: [`docs/manual-identidad-ux-empoleon.md`](file:///docs/manual-identidad-ux-empoleon.md).  
+Prototipo interactivo funcional: [`docs/aquaport-enterprise-ux-flota.html`](file:///docs/aquaport-enterprise-ux-flota.html).
+
+### 1. Tokens de Diseño y Verificación de Contraste WCAG AA
+
+| Token de Color | Valor Hex | Ratio de Contraste sobre Fondo | Nivel WCAG | Uso Semántico |
+|---|---|---|---|---|
+| **Disponible** | `#10B981` | **8.2 : 1** | ✅ **AAA** / **AA** | Drone en muelle o boya listo para recibir misión ($\ge 35\%$). |
+| **En Tránsito** | `#38BDF8` | **9.4 : 1** | ✅ **AAA** / **AA** | Drone navegando en tramo con telemetría activa a $1\text{ Hz}$. |
+| **En Traspaso / Esclusa** | `#818CF8` | **7.8 : 1** | ✅ **AAA** / **AA** | Drone en boya o esclusa en relevo físico de contenedor de muestras. |
+| **Sumergido / Buceo** | `#60A5FA` | **8.1 : 1** | ✅ **AAA** / **AA** | Inmersión profunda de drone buceador para sedimentos de fondo. |
+| **Recargando** | `#FBBF24` | **11.2 : 1** | ✅ **AAA** / **AA** | Acoplado a estación de carga rápida en muelle de inducción. |
+| **Alerta / Fallo** | `#F87171` | **6.9 : 1** | ✅ **AA** | Anomalía severa (halo pulsante animado y aviso de reasignación). |
+| **Texto Primario** | `#F8FAFC` | **16.8 : 1** | ✅ **AAA** / **AA** | Títulos, KPIs principales y lecturas críticas. |
+
+### 2. Flujo de las 6 Pantallas y Leyes UX Aplicadas
+
+```
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│   PANTALLA 1    │  ───> │   PANTALLA 2    │  ───> │   PANTALLA 3    │
+│  Mapa de Zonas  │       │ Selec. de Ruta  │       │ Asignac. Tramos │
+└─────────────────┘       └─────────────────┘       └─────────────────┘
+                                                             │
+                                                             ▼
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐
+│   PANTALLA 6    │  <─── │   PANTALLA 5    │  <─── │   PANTALLA 4    │
+│ Reporte Entrega │       │ Alerta & Reasig.│       │ Monitoreo Vivo  │
+└─────────────────┘       └─────────────────┘       └─────────────────┘
+```
+
+1. **Pantalla 1: Mapa Global de Zonas (60 Drones):**
+   * *Ley de Hick:* Agrupación jerárquica de 60 unidades en 4 zonas discretas para minimizar el tiempo de decisión.
+   * *Ley de Proximidad:* Cuencas y drones cercanos agrupados con código cromático zonal unificado.
+2. **Pantalla 2: Selección de Ruta y Waypoints:**
+   * *Ley de Fitts:* Botones de acción táctil amplia ($\ge 48\times 48\text{px}$) anclados en zonas de fácil puntería.
+   * *Efecto de Posición Serial:* Enfatiza el origen y el destino final como puntos ancla de mayor recordación.
+3. **Pantalla 3: Asignación por Tramos y Validación de Cadena:**
+   * *Ley de Miller:* Segmentación de la travesía en fragmentos digeribles de $3\pm 1$ tramos por pantalla.
+   * *Visibilidad del Estado del Sistema (Nielsen #1):* Visualización eslabón por eslabón del resultado de la cadena.
+4. **Pantalla 4: Monitoreo en Tiempo Real y Telemetría Cifrada:**
+   * *Ley de Jakob:* Uso de convenciones familiares de cabinas de instrumentación náutica y aeronáutica.
+   * *Ley de Pregnancia:* Figuras geométricas simples y legibles en `JetBrains Mono` bajo estrés operativo.
+5. **Pantalla 5: Alerta de Fallo y Reasignación Autónoma en Waypoint:**
+   * *Efecto de Aislamiento (Von Restorff):* El elemento en fallo rompe el patrón con halo rojo pulsante y sonido de alerta.
+   * *Ley de Pareto (80/20):* El sistema resuelve el 80% de las sustituciones de forma autónoma en $\le 3.0\text{s}$.
+6. **Pantalla 6: Reporte de Entrega, Liquidación y Cadena de Custodia:**
+   * *Regla del Pico y Final (Peak-End):* Certificación visual gratificante con sello criptográfico verde y métricas de éxito.
+   * *Ley de Tesler:* Toda la complejidad técnica de la sincronización interzonal es absorbida internamente.
+
+---
+
 ## 💻 Ejecución de la Demostración Enterprise
 
 ```powershell
