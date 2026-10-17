@@ -41,6 +41,7 @@
 
 ### 🧪 Pruebas Unitarias y de Integración
 
+- [`348d980`] **test(empoleon-arch): auditar arquitectura por capas y reporte de dependencias** *(por Oscar10lm el 2026-10-17)*
 - [`e183948`] **test(empoleon-solid): auditar aislamiento de dominio e inyeccion por constructor** *(por Oscar10lm el 2026-10-17)*
 - [`7b7fdab`] **test(empoleon-arch): auditar limites de lineas y dominio desacoplado** *(por Oscar10lm el 2026-10-17)*
 - [`fae2f8b`] **test(empoleon-streams): validar streams y colector en una sola pasada** *(por Oscar10lm el 2026-10-17)*
@@ -50,6 +51,8 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`a85372b`] **docs(empoleon-qa): configurar quality gate y certificar 6 indicadores sonarqube** *(por Oscar10lm el 2026-10-17)*
+- [`83f29ae`] **docs: actualizar CHANGELOG tras merge de Retos 09 y 10 Empoleon** *(por Oscar10lm el 2026-10-17)*
 - [`ebe306d`] **docs(empoleon): integrar retos 09 y 10 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`794697e`] **docs(empoleon-cu): modelar casos de uso con 5 flujos alternos extendidos** *(por Oscar10lm el 2026-10-17)*
 - [`c3cec6d`] **docs(empoleon-jira): planificar roadmap 3 sprints y retrospectiva en Jira** *(por Oscar10lm el 2026-10-17)*
@@ -63,8 +66,6 @@
 - [`db67ab6`] **docs(empoleon-c4): disenar diagrama C4 nivel 2 de contenedores** *(por Oscar10lm el 2026-10-17)*
 - [`5e2ecc9`] **docs: actualizar CHANGELOG tras merge de Retos 03 y 04 Empoleon** *(por Oscar10lm el 2026-10-17)*
 - [`e5d8ad3`] **docs(empoleon): documentar patrones Chain, Decorator, Adapter y principios SOLID** *(por Oscar10lm el 2026-10-17)*
-- [`7aa844b`] **docs(empoleon): documentar retos 01 y 02 y consolidar CHANGELOG automatico** *(por Oscar10lm el 2026-10-17)*
-- [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
 
 ### ⚙️ Integración Continua y Calidad
 
