@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AquaPort Enterprise (Empoleon v3) — Prototipo Interactivo UX Flota 60 Drones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-abyssal: #050B18;
+      --bg-surface: #0B1528;
+      --bg-card: #111F38;
+      --bg-elevated: #182B4D;
+      --border-subtle: #1E3A66;
+      --border-accent: #0284C7;
+      --cyan-electric: #38BDF8;
+      --blue-ocean: #2563EB;
+      --green-emerald: #10B981;
+      --amber-gold: #FBBF24;
+      --red-coral: #F87171;
+      --indigo-soft: #818CF8;
+      --blue-submerged: #60A5FA;
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --font-ui: 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-abyssal);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0284C7, #2563EB);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    /* 6-Screen Stepper Navigation */
+    .screen-stepper {
+      display: flex;
+      gap: 6px;
+      background: rgba(5, 11, 24, 0.6);
+      padding: 4px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+    }
+    .step-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .step-btn:hover { color: var(--text-primary); background: rgba(255, 255, 255, 0.05); }
+    .step-btn.active {
+      background: var(--border-accent);
+      color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge-enterprise {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green-emerald);
+      border: 1px solid var(--green-emerald);
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Screen Panels */
+    .screen-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .screen-panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Section Headers */
+    .view-header {
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 16px;
+    }
+    .view-title { font-size: 1.6rem; font-weight: 700; color: var(--text-primary); }
+    .view-desc { font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px; }
+    .ux-tag {
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--cyan-electric);
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Cards & Grids */
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .card:hover { border-color: var(--border-accent); transform: translateY(-2px); }
+    .card-stripe { position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+    .card-stripe.green { background: var(--green-emerald); }
+    .card-stripe.blue { background: var(--cyan-electric); }
+    .card-stripe.indigo { background: var(--indigo-soft); }
+    .card-stripe.cyan { background: var(--blue-submerged); }
+    .card-stripe.amber { background: var(--amber-gold); }
+    .card-stripe.red { background: var(--red-coral); }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .card-id { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; }
+    .badge {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      font-family: var(--font-ui);
+    }
+    .badge-green { background: rgba(16, 185, 129, 0.15); color: var(--green-emerald); }
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--cyan-electric); }
+    .badge-indigo { background: rgba(129, 140, 248, 0.15); color: var(--indigo-soft); }
+    .badge-cyan { background: rgba(96, 165, 250, 0.15); color: var(--blue-submerged); }
+    .badge-amber { background: rgba(251, 191, 36, 0.15); color: var(--amber-gold); }
+    .badge-red { background: rgba(248, 113, 113, 0.15); color: var(--red-coral); animation: pulseRed 1.5s infinite; }
+
+    @keyframes pulseRed {
+      0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(248, 113, 113, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); }
+    }
+
+    /* Battery Bar */
+    .battery-container { margin: 12px 0; }
+    .battery-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
+    .battery-bar { height: 6px; background: rgba(255, 255, 255, 0.1); border-radius: var(--radius-full); overflow: hidden; }
+    .battery-fill { height: 100%; border-radius: var(--radius-full); }
+    .battery-fill.high { background: var(--green-emerald); width: 85%; }
+    .battery-fill.mid { background: var(--amber-gold); width: 45%; }
+    .battery-fill.low { background: var(--red-coral); width: 18%; }
+
+    /* Technical Props */
+    .prop-row { display: flex; justify-content: space-between; font-size: 0.8125rem; margin-top: 6px; }
+    .prop-name { color: var(--text-secondary); }
+    .prop-value { font-family: var(--font-mono); color: var(--text-primary); }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #0284C7, #2563EB);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.5);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+    }
+    .btn-secondary:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--border-accent); }
+    .btn-danger { background: var(--red-coral); color: #FFFFFF; }
+    .btn-danger:hover { background: #EF4444; }
+
+    /* Modal Alerta Reasignación */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 11, 24, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-card {
+      background: var(--bg-card);
+      border: 2px solid var(--red-coral);
+      border-radius: var(--radius-xl);
+      padding: 28px;
+      max-width: 580px;
+      width: 90%;
+      box-shadow: 0 0 32px rgba(248, 113, 113, 0.3);
+      position: relative;
+    }
+    .modal-icon {
+      font-size: 40px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .countdown-circle {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      color: var(--red-coral);
+      text-align: center;
+      margin: 12px 0;
+      font-weight: 700;
+    }
+
+    /* Terminal Telemetría */
+    .terminal-box {
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      color: #38BDF8;
+      max-height: 240px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+    .terminal-line { margin-bottom: 4px; }
+    .terminal-time { color: #64748B; margin-right: 8px; }
+    .terminal-alert { color: #F87171; }
+    .terminal-success { color: #10B981; }
+
+    /* Pipeline Chain of Responsibility */
+    .chain-pipeline {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .chain-node {
+      flex: 1;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      position: relative;
+    }
+    .chain-node.approved {
+      border-color: var(--green-emerald);
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .chain-node-title { font-weight: 600; font-size: 0.8125rem; margin-bottom: 4px; }
+    .chain-node-status { font-size: 0.75rem; font-family: var(--font-mono); color: var(--green-emerald); }
+    .chain-arrow { color: var(--text-secondary); font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">🌊</div>
+      <div>
+        <div class="brand-title">AquaPort Enterprise (Empoleon v3)</div>
+        <div class="brand-subtitle">RED MULTI-EMBALSE • 60 DRONES • 4 ZONAS</div>
+      </div>
+    </div>
+
+    <!-- 6 Screen Stepper Navigation -->
+    <nav class="screen-stepper">
+      <button class="step-btn active" onclick="switchScreen(1)">1. Mapa Zonas</button>
+      <button class="step-btn" onclick="switchScreen(2)">2. Selección Ruta</button>
+      <button class="step-btn" onclick="switchScreen(3)">3. Tramos & Chain</button>
+      <button class="step-btn" onclick="switchScreen(4)">4. Monitoreo Vivo</button>
+      <button class="step-btn" onclick="switchScreen(5)">5. Alerta & Reasig.</button>
+      <button class="step-btn" onclick="switchScreen(6)">6. Certif. Entrega</button>
+    </nav>
+
+    <div class="header-actions">
+      <span class="badge-enterprise">ENTERPRISE SLA 99.9%</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- PANTALLA 1: MAPA GLOBAL DE ZONAS -->
+    <section id="screen-1" class="screen-panel active">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Pantalla 1: Mapa Global de Zonas Hídricas</h1>
+          <p class="view-desc">Visión sinóptica de los 60 drones distribuidos en las 4 zonas del campus ECI.</p>
+        </div>
+        <span class="ux-tag">UX: Ley de Hick & Ley de Proximidad</span>
+      </div>
+
+      <!-- KPIs Rápidos -->
+      <div class="grid-4">
+        <div class="card">
+          <div class="prop-name">Flota Total Activa</div>
+          <div style="font-size: 1.8rem; font-weight: 700; color: #FFFFFF; margin: 4px 0;">60 Drones</div>
+          <div style="font-size: 0.75rem; color: var(--green-emerald);">● 48 Disponibles / 9 En Misión</div>
+        </div>
+        <div class="card">
+          <div class="prop-name">Zonas Operativas</div>
+          <div style="font-size: 1.8rem; font-weight: 700; color: var(--cyan-electric); margin: 4px 0;">4 Zonas</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary);">Embalse, Canales, Laguna, Lab</div>
+        </div>
+        <div class="card">
+          <div class="prop-name">Misiones Multi-Etapa</div>
+          <div style="font-size: 1.8rem; font-weight: 700; color: var(--indigo-soft); margin: 4px 0;">5 Activas</div>
+          <div style="font-size: 0.75rem; color: var(--cyan-electric);">12 Tramos coordinados</div>
+        </div>
+        <div class="card">
+          <div class="prop-name">Salud de Red (SLA)</div>
+          <div style="font-size: 1.8rem; font-weight: 700; color: var(--green-emerald); margin: 4px 0;">99.98%</div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary);">0 Fallos no contenidos</div>
+        </div>
+      </div>
+
+      <!-- Tarjetas Muestra de 6 Estados -->
+      <h3 style="margin-bottom: 14px; font-size: 1.1rem;">Componente: Tarjetas de Drone en los 6 Estados de Flota</h3>
+      <div class="grid-3">
+        <!-- 1. Disponible -->
+        <div class="card">
+          <div class="card-stripe green"></div>
+          <div class="card-header">
+            <span class="card-id">DS-04 · WaveRanger</span>
+            <span class="badge badge-green">● DISPONIBLE</span>
+          </div>
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería</span><span>88%</span></div>
+            <div class="battery-bar"><div class="battery-fill high" style="width: 88%;"></div></div>
+          </div>
+          <div class="prop-row"><span class="prop-name">Zona Actual</span><span class="prop-value">Red de Canales</span></div>
+          <div class="prop-row"><span class="prop-name">Tipo de Casco</span><span class="prop-value">Superficial (500g)</span></div>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="switchScreen(2)">Asignar a Tramo</button>
+        </div>
+
+        <!-- 2. En Tránsito -->
+        <div class="card">
+          <div class="card-stripe blue"></div>
+          <div class="card-header">
+            <span class="card-id">DB-12 · DeepProbe</span>
+            <span class="badge badge-blue">🚢 EN TRÁNSITO</span>
+          </div>
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería</span><span>74%</span></div>
+            <div class="battery-bar"><div class="battery-fill high" style="width: 74%;"></div></div>
+          </div>
+          <div class="prop-row"><span class="prop-name">Misión Activa</span><span class="prop-value">MIS-301 [Tramo 1]</span></div>
+          <div class="prop-row"><span class="prop-name">Velocidad</span><span class="prop-value">3.4 nudos (GPS OK)</span></div>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;" onclick="switchScreen(4)">Ver Telemetría</button>
+        </div>
+
+        <!-- 3. En Traspaso Esclusa -->
+        <div class="card">
+          <div class="card-stripe indigo"></div>
+          <div class="card-header">
+            <span class="card-id">DM-09 · AquaSentinel</span>
+            <span class="badge badge-indigo">⏳ EN TRASPASO</span>
+          </div>
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería</span><span>62%</span></div>
+            <div class="battery-bar"><div class="battery-fill mid" style="width: 62%;"></div></div>
+          </div>
+          <div class="prop-row"><span class="prop-name">Punto Relevo</span><span class="prop-value">Boya WP-02 (Esclusa)</span></div>
+          <div class="prop-row"><span class="prop-name">Muestra</span><span class="prop-value">SHA-256 Sello OK</span></div>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;">Sincronizar Relevo</button>
+        </div>
+
+        <!-- 4. Sumergido / Buceo -->
+        <div class="card">
+          <div class="card-stripe cyan"></div>
+          <div class="card-header">
+            <span class="card-id">DB-03 · DeepProbe</span>
+            <span class="badge badge-cyan">🤿 BUCEO (-4.2m)</span>
+          </div>
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería</span><span>68%</span></div>
+            <div class="battery-bar"><div class="battery-fill mid" style="width: 68%;"></div></div>
+          </div>
+          <div class="prop-row"><span class="prop-name">Zona</span><span class="prop-value">Embalse Investigación</span></div>
+          <div class="prop-row"><span class="prop-name">Turbidez</span><span class="prop-value">14.2 NTU (Media)</span></div>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;">Ver Inmersión</button>
+        </div>
+
+        <!-- 5. Recargando -->
+        <div class="card">
+          <div class="card-stripe amber"></div>
+          <div class="card-header">
+            <span class="card-id">DS-18 · WaveRanger</span>
+            <span class="badge badge-amber">⚡ RECARGANDO</span>
+          </div>
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería</span><span>42%</span></div>
+            <div class="battery-bar"><div class="battery-fill mid" style="width: 42%;"></div></div>
+          </div>
+          <div class="prop-row"><span class="prop-name">Estación</span><span class="prop-value">Muelle Inducción #3</span></div>
+          <div class="prop-row"><span class="prop-name">ETA 100%</span><span class="prop-value">16 min</span></div>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 12px;" disabled>En Carga Rápida</button>
+        </div>
+
+        <!-- 6. Fallo / Alerta -->
+        <div class="card">
+          <div class="card-stripe red"></div>
+          <div class="card-header">
+            <span class="card-id">DM-02 · AquaSentinel</span>
+            <span class="badge badge-red">🚨 FALLO CRÍTICO</span>
+          </div>
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería</span><span>18%</span></div>
+            <div class="battery-bar"><div class="battery-fill low" style="width: 18%;"></div></div>
+          </div>
+          <div class="prop-row"><span class="prop-name">Motivo</span><span class="prop-value" style="color: var(--red-coral);">Batería crítica &lt; 35%</span></div>
+          <div class="prop-row"><span class="prop-name">Ubicación</span><span class="prop-value">Boya WP-02</span></div>
+          <button class="btn btn-danger" style="width: 100%; margin-top: 12px;" onclick="switchScreen(5)">Reasignar de Inmediato</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANTALLA 2: SELECCIÓN DE RUTA Y WAYPOINTS -->
+    <section id="screen-2" class="screen-panel">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Pantalla 2: Selección de Ruta Multi-Etapa y Waypoints</h1>
+          <p class="view-desc">Configuración del plan de travesía: origen, paradas intermedias, carga científica y destino final.</p>
+        </div>
+        <span class="ux-tag">UX: Ley de Fitts & Efecto de Posición Serial</span>
+      </div>
+
+      <div class="grid-2">
+        <!-- Constructor de Ruta -->
+        <div class="card">
+          <h3 style="margin-bottom: 16px;">Parámetros de la Misión</h3>
+          <div style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <label class="prop-name">Zona de Origen (Inicio)</label>
+              <input type="text" value="Embalse de Investigación (Norte)" style="width: 100%; padding: 10px; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-md); font-family: var(--font-ui);" readonly>
+            </div>
+            <div>
+              <label class="prop-name">Waypoints Intermedios (Relevos / Muestreo)</label>
+              <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px; margin-top: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8125rem;">
+                  <span>📍 WP-01: Boya Limnológica Norte</span>
+                  <span style="color: var(--cyan-electric);">Muestreo buceo</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.8125rem;">
+                  <span>📍 WP-02: Esclusa de Transferencia Canales</span>
+                  <span style="color: var(--indigo-soft);">Punto de traspaso</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+                  <span>📍 WP-03: Boya Laguna Sur</span>
+                  <span style="color: var(--amber-gold);">Monitoreo oleaje</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="prop-name">Zona de Destino Final</label>
+              <input type="text" value="Laboratorio Hídrico Central" style="width: 100%; padding: 10px; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-md); font-family: var(--font-ui);" readonly>
+            </div>
+            <div style="display: flex; gap: 12px;">
+              <div style="flex: 1;">
+                <label class="prop-name">Tipo de Carga</label>
+                <select style="width: 100%; padding: 10px; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-md);">
+                  <option>MUESTRA_AGUA (Contenedor Isotérmico)</option>
+                  <option>SENSOR</option>
+                  <option>EQUIPO_MEDICION</option>
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <label class="prop-name">Prioridad</label>
+                <select style="width: 100%; padding: 10px; background: var(--bg-surface); border: 1px solid var(--border-subtle); color: #fff; border-radius: var(--radius-md);">
+                  <option>CRÍTICA (Batería &ge; 50%)</option>
+                  <option>ALTA</option>
+                  <option>NORMAL</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 12px; justify-content: center;" onclick="switchScreen(3)">
+              Planificar Tramos y Validar Cadena ➜
+            </button>
+          </div>
+        </div>
+
+        <!-- Mapa Vectorial Simulado -->
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <h3 style="margin-bottom: 12px;">Cartografía GIS del Campus ECI</h3>
+          <div style="flex: 1; min-height: 280px; background: #030816; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); position: relative; display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; top: 20px; left: 30px; color: var(--cyan-electric); font-size: 0.8rem;">[Zona Norte: Embalse de Investigación]</div>
+            <div style="position: absolute; bottom: 20px; left: 30px; color: var(--green-emerald); font-size: 0.8rem;">[Zona Sur: Laguna de Reserva]</div>
+            <div style="position: absolute; top: 120px; right: 40px; color: #FFFFFF; font-size: 0.8rem;">[Laboratorio Central]</div>
+            <svg width="340" height="200" style="position: absolute;">
+              <polyline points="40,40 120,90 220,130 290,100" style="fill:none;stroke:#0284C7;stroke-width:3;stroke-dasharray:6;" />
+              <circle cx="40" cy="40" r="8" fill="#38BDF8" />
+              <circle cx="120" cy="90" r="8" fill="#818CF8" />
+              <circle cx="220" cy="130" r="8" fill="#FBBF24" />
+              <circle cx="290" cy="100" r="10" fill="#10B981" />
+            </svg>
+            <div style="background: rgba(11,21,40,0.85); padding: 8px 16px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.8rem; z-index: 10;">
+              Distancia Total: 0.66 km • 3 Tramos
+            </div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;">
+            * Los waypoints se conectan automáticamente respetando canales autorizados por GIS ECI.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANTALLA 3: ASIGNACIÓN POR TRAMOS Y VALIDACIÓN -->
+    <section id="screen-3" class="screen-panel">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Pantalla 3: Asignación por Tramos y Validación de Cadena</h1>
+          <p class="view-desc">Desglose de la ruta en 3 tramos y ejecución secuencial de la Chain of Responsibility.</p>
+        </div>
+        <span class="ux-tag">UX: Ley de Miller & Visibilidad del Sistema</span>
+      </div>
+
+      <!-- Chain of Responsibility Pipeline -->
+      <div class="card" style="margin-bottom: 24px;">
+        <h3 style="font-size: 1rem; margin-bottom: 8px;">Pipeline de Validación (Chain of Responsibility): Misión MIS-301</h3>
+        <div class="chain-pipeline">
+          <div class="chain-node approved">
+            <div class="chain-node-title">1. ValidadorBateria</div>
+            <div class="chain-node-status">✓ 74% &ge; 50% (OK)</div>
+          </div>
+          <div class="chain-arrow">➔</div>
+          <div class="chain-node approved">
+            <div class="chain-node-title">2. ValidadorCapacidad</div>
+            <div class="chain-node-status">✓ 0.25kg &le; 0.30kg (OK)</div>
+          </div>
+          <div class="chain-arrow">➔</div>
+          <div class="chain-node approved">
+            <div class="chain-node-title">3. ValidadorZonaActiva</div>
+            <div class="chain-node-status">✓ Embalse Norte (OK)</div>
+          </div>
+          <div class="chain-arrow">➔</div>
+          <div class="chain-node approved">
+            <div class="chain-node-title">4. ValidadorHidrico</div>
+            <div class="chain-node-status">✓ Aguas Calmas (OK)</div>
+          </div>
+        </div>
+        <div style="font-size: 0.8125rem; color: var(--green-emerald); font-family: var(--font-mono);">
+          ● Cadena de Responsabilidad superada: Todos los eslabones retornaron OK. Misión autorizada para despacho.
+        </div>
+      </div>
+
+      <!-- Tramos Generados -->
+      <h3 style="margin-bottom: 14px;">Tramos Multi-Etapa Asignados</h3>
+      <div class="grid-3">
+        <!-- Tramo 1 -->
+        <div class="card">
+          <div class="card-stripe blue"></div>
+          <div class="card-header">
+            <span class="card-id">Tramo 1: TR-01 (0.25 km)</span>
+            <span class="badge badge-blue">ASIGNADO</span>
+          </div>
+          <div class="prop-row"><span class="prop-name">Origen ➜ Destino</span><span class="prop-value">Boya Norte ➜ Esclusa Canales</span></div>
+          <div class="prop-row"><span class="prop-name">Drone Asignado</span><span class="prop-value" style="color: var(--cyan-electric);">DB-19 (Buceador)</span></div>
+          <div class="prop-row"><span class="prop-name">Batería Asignada</span><span class="prop-value">84%</span></div>
+          <div class="prop-row"><span class="prop-name">Cuerpo de Agua</span><span class="prop-value">Embalse Profundo</span></div>
+        </div>
+
+        <!-- Tramo 2 -->
+        <div class="card">
+          <div class="card-stripe indigo"></div>
+          <div class="card-header">
+            <span class="card-id">Tramo 2: TR-02 (0.25 km)</span>
+            <span class="badge badge-indigo">PRE-RESERVADO</span>
+          </div>
+          <div class="prop-row"><span class="prop-name">Origen ➜ Destino</span><span class="prop-value">Esclusa ➜ Boya Laguna Sur</span></div>
+          <div class="prop-row"><span class="prop-name">Drone Asignado</span><span class="prop-value" style="color: var(--indigo-soft);">DS-20 (Superficial)</span></div>
+          <div class="prop-row"><span class="prop-name">Batería Asignada</span><span class="prop-value">76%</span></div>
+          <div class="prop-row"><span class="prop-name">Cuerpo de Agua</span><span class="prop-value">Canales Calmos</span></div>
+        </div>
+
+        <!-- Tramo 3 -->
+        <div class="card">
+          <div class="card-stripe green"></div>
+          <div class="card-header">
+            <span class="card-id">Tramo 3: TR-03 (0.16 km)</span>
+            <span class="badge badge-green">PRE-RESERVADO</span>
+          </div>
+          <div class="prop-row"><span class="prop-name">Origen ➜ Destino</span><span class="prop-value">Boya Laguna ➜ Lab Central</span></div>
+          <div class="prop-row"><span class="prop-name">Drone Asignado</span><span class="prop-value" style="color: var(--green-emerald);">DM-15 (Semisumergido)</span></div>
+          <div class="prop-row"><span class="prop-name">Batería Asignada</span><span class="prop-value">92%</span></div>
+          <div class="prop-row"><span class="prop-name">Cuerpo de Agua</span><span class="prop-value">Laguna con Oleaje</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 12px;">
+        <button class="btn btn-secondary" onclick="switchScreen(2)">⮌ Modificar Ruta</button>
+        <button class="btn btn-primary" onclick="switchScreen(4)">Despachar Misión y Monitorear Vivo ➜</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA 4: MONITOREO EN TIEMPO REAL -->
+    <section id="screen-4" class="screen-panel">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Pantalla 4: Monitoreo en Tiempo Real y Telemetría Cifrada</h1>
+          <p class="view-desc">Supervisión en vivo del tramo activo, datos sensoriales, bitácora del Decorator y custodia.</p>
+        </div>
+        <span class="ux-tag">UX: Ley de Jakob & Buena Forma</span>
+      </div>
+
+      <div class="grid-2">
+        <!-- HUD Telemetría -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-id">Telemetría HUD: DB-19 [Tramo 1]</span>
+            <span class="badge badge-blue">STREAMING MQTTS 1 Hz</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0;">
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md); text-align: center;">
+              <div class="prop-name">Velocidad</div>
+              <div style="font-family: var(--font-mono); font-size: 1.4rem; color: #fff;">3.4 kts</div>
+            </div>
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md); text-align: center;">
+              <div class="prop-name">Profundidad</div>
+              <div style="font-family: var(--font-mono); font-size: 1.4rem; color: var(--cyan-electric);">-3.2 m</div>
+            </div>
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md); text-align: center;">
+              <div class="prop-name">Temp. Muestra</div>
+              <div style="font-family: var(--font-mono); font-size: 1.4rem; color: var(--green-emerald);">4.2°C</div>
+            </div>
+          </div>
+
+          <div class="battery-container">
+            <div class="battery-labels"><span>Batería Drone DB-19</span><span>79% (Consumo Nominal)</span></div>
+            <div class="battery-bar"><div class="battery-fill high" style="width: 79%;"></div></div>
+          </div>
+
+          <div class="prop-row"><span class="prop-name">Coordenadas GPS</span><span class="prop-value">4.7831° N, -74.0432° W</span></div>
+          <div class="prop-row"><span class="prop-name">Cifrado de Sobre</span><span class="prop-value" style="color: var(--cyan-electric);">[ENCRYPTED:AES-256-GCM]</span></div>
+          <div class="prop-row"><span class="prop-name">Cadena de Custodia</span><span class="prop-value" style="color: var(--green-emerald);">Hash SHA-256 Sellado</span></div>
+
+          <div style="margin-top: 18px; display: flex; gap: 12px;">
+            <button class="btn btn-danger" style="flex: 1; justify-content: center;" onclick="triggerFaultSimulation()">
+              ⚠️ Simular Fallo de Drone en Waypoint
+            </button>
+          </div>
+        </div>
+
+        <!-- Terminal de Eventos Cifrados -->
+        <div class="card" style="display: flex; flex-direction: column;">
+          <h3 style="font-size: 1rem; margin-bottom: 12px;">Bitácora de Telemetría (DroneConMonitoreo Decorator)</h3>
+          <div class="terminal-box" id="terminal-logs">
+            <div class="terminal-line"><span class="terminal-time">[16:05:01]</span><span class="terminal-success">MISION_INICIADA:</span> MIS-301 despachada desde Boya Norte.</div>
+            <div class="terminal-line"><span class="terminal-time">[16:05:02]</span>TEL_ENC: [ENCRYPTED:AES-256:dGVsZW1ldHJ5X3Br...];MONITOREO=ACTIVO;DIAG=OK</div>
+            <div class="terminal-line"><span class="terminal-time">[16:05:03]</span>CUSTODIA: Bloque SHA-256 anclado en memoria para contenedor ISOT-01.</div>
+            <div class="terminal-line"><span class="terminal-time">[16:05:04]</span>TEL_ENC: [ENCRYPTED:AES-256:YmF0dGVyeV83OXB...];MONITOREO=ACTIVO;DIAG=OK</div>
+            <div class="terminal-line"><span class="terminal-time">[16:05:05]</span>APROXIMACION: Drone DB-19 a 45 metros de Esclusa Canales (WP-02).</div>
+          </div>
+          <div style="margin-top: 12px; font-size: 0.75rem; color: var(--text-secondary);">
+            * Ingesta continua en tiempo real auditada por el módulo de telemetría de producción.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANTALLA 5: ALERTA Y REASIGNACIÓN AUTÓNOMA -->
+    <section id="screen-5" class="screen-panel">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Pantalla 5: Alerta de Fallo y Reasignación Autónoma</h1>
+          <p class="view-desc">Detección de fallo en waypoint, cuenta regresiva de 3.0s y despacho de unidad de relevo.</p>
+        </div>
+        <span class="ux-tag">UX: Efecto Von Restorff & Principio 80/20</span>
+      </div>
+
+      <!-- Banner de Alerta Crítica -->
+      <div style="background: rgba(248, 113, 113, 0.12); border: 1px solid var(--red-coral); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="font-size: 32px;">🚨</div>
+          <div>
+            <div style="font-weight: 700; color: var(--red-coral); font-size: 1.1rem;">INCIDENTE CRÍTICO EN TRAMO 1 — WAYPOINT WP-02</div>
+            <div style="font-size: 0.8125rem; color: var(--text-secondary);">Drone DB-19 reporta pérdida de propulsión hidráulica en aproximación a la esclusa.</div>
+          </div>
+        </div>
+        <span class="badge badge-red" style="padding: 6px 14px; font-size: 0.8125rem;">REASIGNACIÓN AUTÓNOMA EN PROCESO</span>
+      </div>
+
+      <div class="grid-2">
+        <!-- Drone Averiado -->
+        <div class="card" style="border-color: var(--red-coral);">
+          <div class="card-stripe red"></div>
+          <div class="card-header">
+            <span class="card-id">UNIDAD AVERIADA: DB-19</span>
+            <span class="badge badge-red">FALLO CONFIRMADO</span>
+          </div>
+          <div class="prop-row"><span class="prop-name">Diagnóstico</span><span class="prop-value" style="color: var(--red-coral);">Propulsión 0 RPM / Deriva</span></div>
+          <div class="prop-row"><span class="prop-name">Batería Residual</span><span class="prop-value">22% (Batería Crítica)</span></div>
+          <div class="prop-row"><span class="prop-name">Acción Inmediata</span><span class="prop-value">Anclaje en Boya WP-02</span></div>
+          <div class="prop-row"><span class="prop-name">Estado Muestra</span><span class="prop-value" style="color: var(--green-emerald);">Segura en Contenedor</span></div>
+        </div>
+
+        <!-- Drone Relevo Asignado -->
+        <div class="card" style="border-color: var(--green-emerald);">
+          <div class="card-stripe green"></div>
+          <div class="card-header">
+            <span class="card-id">UNIDAD DE RELEVO: DB-22</span>
+            <span class="badge badge-green">REASIGNACIÓN EXITOSA (&le; 3s)</span>
+          </div>
+          <div class="prop-row"><span class="prop-name">Modelo de Casco</span><span class="prop-value">DeepProbe-E3 (Buceador)</span></div>
+          <div class="prop-row"><span class="prop-name">Batería Relevo</span><span class="prop-value" style="color: var(--green-emerald);">94% (Óptima)</span></div>
+          <div class="prop-row"><span class="prop-name">Distancia a Boya</span><span class="prop-value">60 metros (ETA: 45 seg)</span></div>
+          <div class="prop-row"><span class="prop-name">Nuevo Tramo</span><span class="prop-value">TR-01R (Recuperación y Relevo)</span></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; background: var(--bg-surface); padding: 16px; border-radius: var(--radius-md); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.875rem; color: var(--green-emerald); font-family: var(--font-mono);">
+          ✓ Acta de custodia actualizada con sello de traspaso de emergencia y firma de DB-22.
+        </span>
+        <button class="btn btn-primary" onclick="switchScreen(6)">Confirmar y Continuar hacia Destino ➜</button>
+      </div>
+    </section>
+
+    <!-- PANTALLA 6: REPORTE DE ENTREGA Y CADENA DE CUSTODIA -->
+    <section id="screen-6" class="screen-panel">
+      <div class="view-header">
+        <div>
+          <h1 class="view-title">Pantalla 6: Reporte de Entrega y Cadena de Custodia Certificada</h1>
+          <p class="view-desc">Liquidación en Laboratorio Hídrico Central, trazabilidad criptográfica e integración con LIMS.</p>
+        </div>
+        <span class="ux-tag">UX: Regla del Pico y Final & Ley de Tesler</span>
+      </div>
+
+      <div class="grid-2">
+        <!-- Certificado de Custodia -->
+        <div class="card" style="border-color: var(--green-emerald);">
+          <div class="card-stripe green"></div>
+          <div style="text-align: center; margin-bottom: 16px;">
+            <div style="font-size: 42px;">🔬</div>
+            <h2 style="font-size: 1.3rem; color: var(--green-emerald); margin-top: 4px;">Muestra Recibida y Certificada</h2>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary);">Laboratorio Hídrico Central • Muelle de Descarga #1</p>
+          </div>
+
+          <div style="background: var(--bg-surface); border-radius: var(--radius-md); padding: 14px; margin-bottom: 14px;">
+            <div class="prop-row"><span class="prop-name">Código Misión</span><span class="prop-value">MIS-301</span></div>
+            <div class="prop-row"><span class="prop-name">Contenedor Muestra</span><span class="prop-value">ISOT-01 (Agua Profunda)</span></div>
+            <div class="prop-row"><span class="prop-name">Cadena de Drones</span><span class="prop-value">DB-19 ➜ DB-22 ➜ DS-20 ➜ DM-15</span></div>
+            <div class="prop-row"><span class="prop-name">Temperatura Promedio</span><span class="prop-value" style="color: var(--green-emerald);">4.1°C (Rango Óptimo 4°C&plusmn;2°C)</span></div>
+            <div class="prop-row"><span class="prop-name">Hash Final Encadenado</span><span class="prop-value" style="font-size: 0.7rem; color: var(--cyan-electric);">e3b0c44298fc1c149afbf4c8996fb92427...</span></div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" style="flex: 1; justify-content: center;" onclick="alert('Expediente de custodia exportado al sistema LIMS Central vía HTTPS REST / AMQP.')">
+              📥 Exportar Acta a LIMS Central
+            </button>
+          </div>
+        </div>
+
+        <!-- Reporte Analítico O(N) -->
+        <div class="card">
+          <h3 style="margin-bottom: 14px;">Métricas Analíticas de Eficiencia Zonal (O(N) Sola Pasada)</h3>
+          
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span class="prop-name">Embalse de Investigación</span>
+                <span style="font-family: var(--font-mono); color: var(--cyan-electric);">Eficiencia: 100% • Bat. Prom: 68.5%</span>
+              </div>
+              <div class="battery-bar"><div class="battery-fill high" style="width: 100%;"></div></div>
+            </div>
+
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span class="prop-name">Red de Canales (Campus)</span>
+                <span style="font-family: var(--font-mono); color: var(--green-emerald);">Eficiencia: 100% • Bat. Prom: 66.0%</span>
+              </div>
+              <div class="battery-bar"><div class="battery-fill high" style="width: 100%;"></div></div>
+            </div>
+
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span class="prop-name">Laguna de Reserva</span>
+                <span style="font-family: var(--font-mono); color: var(--amber-gold);">Eficiencia: 100% • Bat. Prom: 74.0%</span>
+              </div>
+              <div class="battery-bar"><div class="battery-fill high" style="width: 100%;"></div></div>
+            </div>
+
+            <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md);">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span class="prop-name">Laboratorio Central</span>
+                <span style="font-family: var(--font-mono); color: #FFFFFF;">Eficiencia: 100% • Bat. Prom: 90.0%</span>
+              </div>
+              <div class="battery-bar"><div class="battery-fill high" style="width: 100%;"></div></div>
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; font-size: 0.75rem; color: var(--text-secondary);">
+            * Computado en una sola pasada con <code>BateriaPromedioCollector</code> en &le; 15 ms para los 60 drones.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Interactivo de Simulación de Fallo -->
+  <div class="modal-backdrop" id="fault-modal">
+    <div class="modal-card">
+      <div class="modal-icon">⚠️</div>
+      <h2 style="text-align: center; color: var(--red-coral); font-size: 1.3rem;">FALLO EN VUELO ACUÁTICO DETECTADO</h2>
+      <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-top: 6px;">
+        Pérdida de propulsión en drone <strong>DB-19</strong> a 45 metros del Waypoint 02.
+      </p>
+      
+      <div class="countdown-circle" id="countdown-val">02.8s</div>
+      <p style="text-align: center; font-size: 0.8125rem; color: var(--cyan-electric); font-family: var(--font-mono);">
+        Buscando unidad de relevo en Embalse de Investigación...
+      </p>
+
+      <div style="margin-top: 20px; display: flex; gap: 12px;">
+        <button class="btn btn-secondary" style="flex: 1; justify-content: center;" onclick="closeFaultModal()">Intervención Manual</button>
+        <button class="btn btn-primary" style="flex: 1; justify-content: center;" onclick="executeReallocationNow()">Confirmar Relevo Inmediato</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchScreen(screenNum) {
+      document.querySelectorAll('.screen-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.step-btn').forEach(b => b.classList.remove('active'));
+
+      const targetScreen = document.getElementById('screen-' + screenNum);
+      if (targetScreen) targetScreen.classList.add('active');
+
+      const buttons = document.querySelectorAll('.step-btn');
+      if (buttons[screenNum - 1]) buttons[screenNum - 1].classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function triggerFaultSimulation() {
+      const modal = document.getElementById('fault-modal');
+      modal.classList.add('show');
+
+      let timeLeft = 3.0;
+      const countEl = document.getElementById('countdown-val');
+      const timer = setInterval(() => {
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          executeReallocationNow();
+        } else {
+          countEl.innerText = '0' + timeLeft.toFixed(1) + 's';
+        }
+      }, 100);
+    }
+
+    function closeFaultModal() {
+      document.getElementById('fault-modal').classList.remove('show');
+    }
+
+    function executeReallocationNow() {
+      closeFaultModal();
+      switchScreen(5);
+    }
+  </script>
+</body>
+</html>
