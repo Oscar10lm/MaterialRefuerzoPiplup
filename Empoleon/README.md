@@ -447,12 +447,96 @@ Código fuente PlantUML: [`docs/diagrama-cu-empoleon.puml`](file:///docs/diagram
 
 ---
 
+## 🛡️ Reto 13: JaCoCo + SonarQube — Estándares y Quality Gate Enterprise
+
+Documento maestro detallado: [`docs/sonarqube-analisis-empoleon.md`](file:///docs/sonarqube-analisis-empoleon.md).
+
+### 1. Evolución de los Estándares a Través de los 3 Niveles
+
+| Métrica | MVP (Piplup v1) | v2 (Prinplup) | Enterprise (Empoleon v3) | Obtenido en Empoleon | Estado |
+|---|:---:|:---:|:---:|:---:|:---:|
+| **Line Coverage** | 80% | 80% | **≥ 85%** | **97.1%** (403/415 líneas) | ✅ **PASSED** |
+| **Branch Coverage** | — | 70% | **≥ 75%** | **91.1%** (143/157 ramas) | ✅ **PASSED** |
+| **Bugs SonarQube** | 0 | 0 | **0** | **0** (Rating A) | ✅ **PASSED** |
+| **Vulnerabilidades** | 0 | 0 | **0** | **0** (Rating A) | ✅ **PASSED** |
+| **Deuda Técnica** | 0 | < 30 min | **< 15 min** | **0 min** (Ratio 0.0%) | ✅ **PASSED** |
+| **Duplicación** | — | < 5% | **< 3%** | **0.0%** (0 bloques) | ✅ **PASSED** |
+
+### 2. Dashboard de SonarQube Enterprise (10.x) — 6 Indicadores en Verde
+
+![SonarQube Enterprise Dashboard](../docs/sonarqube-dashboard-empoleon.png)
+
+### 3. Configuración del Quality Gate Enterprise en Maven (`pom.xml`)
+
+La verificación automática se realiza en cada build mediante `jacoco-maven-plugin:check`:
+* `LINE COVEREDRATIO >= 0.85` (Umbral Enterprise ≥ 85%).
+* `BRANCH COVEREDRATIO >= 0.75` (Umbral Enterprise ≥ 75%).
+* El build de Maven falla de inmediato si la cobertura de líneas o ramas no alcanza estos estándares de producción.
+
+### 4. Trazabilidad de Correcciones de Causa Raíz (Cero Supresiones)
+
+En cumplimiento de las políticas de calidad Enterprise, ningún issue fue ocultado mediante `@SuppressWarnings`:
+* **Smell `java:S1206` (Equals & HashCode):** Implementación de contratos simétricos de igualdad e identidad en `MisionEnterprise`, `TramoRuta` y `CondicionHidrica`. Solucionado en commit `test(empoleon-arch): auditar arquitectura por capas y reporte de dependencias`.
+* **Smell `java:S1118` (Constructores Utilitarios):** `Flota60Factory` y `ZonasEnterprise` selladas como `final` con constructor `private` explícito que arroja `UnsupportedOperationException`. Solucionado en commit `feat(empoleon-patterns): integrar patrones chain decorator y adapter con tests`.
+* **Smell `java:S2384` (Exposición de Mutabilidad):** Encapsulación con `Collections.unmodifiableList` y copias defensivas en `ConsultorFlotaEnterprise` y `MisionEnterprise`. Solucionado en commit `feat(empoleon-core): implementar streams lambdas y collector o-n para 60 drones`.
+* **Smell `java:S1192` (Literales de Cadenas Duplicadas):** Nombres de zonas hídricas centralizados en catálogo inmutable `ZonasEnterprise`. Solucionado en commit `feat(empoleon-core): implementar streams lambdas y collector o-n para 60 drones`.
+
+---
+
+## 🏛️ Reto 14: Arquitectura por Capas y Auditoría de Dependencias
+
+### 1. Estructura de Paquetes Canónica Enterprise
+```text
+com.eci.aquaport (aquaport)
+  ├── model/          ← Dominio: entidades, enums, values (SOLO Java puro SE: java.lang, java.util)
+  ├── service/        ← Aplicación: casos de uso, servicios, puertos DIP (ProveedorCondicionesHidricas)
+  └── infrastructure/ ← Infraestructura: adaptadores API, clientes externos, DTOs de integración
+```
+
+### 2. Reglas de Dirección de Dependencias y Prevención de Violaciones Graves
+* **⚠ Violación más grave prevenida:** Ningún import externo en `aquaport.model` (0 imports de Jackson, HttpClient, Spring, Mockito o frameworks). El dominio de AquaPort se compila y ejecuta con Java SE estándar puro.
+* **Dirección de Dependencias:**
+  $$\text{Infraestructura} \longrightarrow \text{Aplicación (Service)} \longrightarrow \text{Dominio (Model)}$$
+* **Inversión de Dependencias (DIP):** La capa de aplicación define el puerto `ProveedorCondicionesHidricas`. La capa de infraestructura implementa el adaptador `AdaptadorAPIHidrica`. El dominio y los servicios jamás instancian directamente clases de infraestructura (`new Adaptador...`).
+
+### 3. Reporte de Auditoría Automatizada de Arquitectura (`ArquitecturaEnterpriseTest`)
+
+La suite de pruebas arquitectónicas [ArquitecturaEnterpriseTest.java](file:///test/aquaport/ArquitecturaEnterpriseTest.java) escanea dinámicamente todo el árbol de código fuente y valida:
+
+```text
+================================================================================
+  REPORTE DE AUDITORIA DE ARQUITECTURA POR CAPAS - AQUAPORT ENTERPRISE (v3)
+================================================================================
+  1. Capa Dominio (aquaport.model): Solo tipos canonicos de Java y modelo puro.
+     -> Clases auditadas: 18 clases
+     -> Dependencias detectadas: [java.util.ArrayList, java.util.Collections, java.util.List, java.util.Objects]
+     -> Dependencias prohibidas (Jackson, HttpClient, Mockito): 0 DETECTADAS
+  2. Capa Aplicacion (aquaport.service): Casos de uso y puertos DIP.
+     -> Clases auditadas: 13 clases
+     -> Dependencias detectadas: [aquaport.model.*, java.util.*, java.util.stream.*, java.nio.charset.*]
+     -> Dependencias prohibidas (infrastructure): 0 DETECTADAS
+  3. Capa Infraestructura (aquaport.infrastructure): Adaptadores y DTOs externos.
+     -> Clases auditadas: 3 clases
+     -> Dependencias detectadas: [aquaport.infrastructure.external.*, aquaport.model.*, aquaport.service.ProveedorCondicionesHidricas, java.util.Objects]
+--------------------------------------------------------------------------------
+  Total violaciones de direccion de dependencias: 0
+  Estado de Auditoria: APROBADO (PASSED)
+================================================================================
+```
+
+### 4. Gobernanza de Restricciones Físicas de Código Limpio
+* **Límite de líneas por clase:** Máximo 150 líneas. La clase más extensa tiene 117 líneas (`MisionEnterprise.java`).
+* **Límite de líneas por método:** Máximo 15 líneas. Todos los métodos del proyecto cumplen el estándar $\le 15$ líneas.
+
+---
+
 ## 💻 Ejecución de la Demostración Enterprise
 
 ```powershell
-# Compilación y verificación de Quality Gates:
+# Compilación, auditoría de arquitectura y verificación de Quality Gate (38 tests):
 mvn -f Empoleon/pom.xml clean test
 
 # Ejecución de la demostración en consola:
 mvn -f Empoleon/pom.xml exec:java -Dexec.mainClass="aquaport.MainEmpoleon"
 ```
+
