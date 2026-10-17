@@ -1,0 +1,83 @@
+# 📜 CHANGELOG — AquaPort Enterprise (ECI)
+
+> Historial de cambios y arquitectura trazable generado automáticamente mediante Conventional Commits.
+
+## [3.0.0] - Empoleon (AquaPort Enterprise: Red Multi-Embalse)
+
+* **Escala:** 60 Drones en 4 Zonas Hídricas con Rutas Multi-Etapa y Waypoints.
+
+* **Calidad:** JaCoCo $\ge 85\%$ Lines, $\ge 75\%$ Branches, SonarQube Rating A (0 Bugs, 0 Vuln, Deuda < 15m).
+
+### 🚀 Nuevas Funcionalidades (Features)
+
+- [`208bcae`] **feat(empoleon-cli): implementar MainEmpoleon y configurar JaCoCo Quality Gate** *(por Oscar10lm el 2026-10-17)*
+- [`7a4cd39`] **feat(empoleon-service): calcular carga de trabajo y eficiencia zonal** *(por Oscar10lm el 2026-10-17)*
+- [`cb73f48`] **feat(empoleon-collector): implementar BateriaPromedioCollector de complejidad O(N) en una sola pasada** *(por Oscar10lm el 2026-10-17)*
+- [`1cd9049`] **feat(empoleon-flota): implementar Flota60Factory con distribucion zonal balanceada de 60 drones** *(por Oscar10lm el 2026-10-17)*
+- [`51ddb6c`] **feat(empoleon-model): modelar waypoints georreferenciados y tramos de ruta con traspasos** *(por Oscar10lm el 2026-10-17)*
+- [`d97e6a9`] **feat(empoleon-model): estructurar topologia de 4 zonas hidricas institucionales de la ECI** *(por Oscar10lm el 2026-10-17)*
+- [`b23b2f2`] **feat(empoleon-model): incorporar enums de dominio EstadoDrone, Prioridad, TipoCarga y EstadoMision** *(por Oscar10lm el 2026-10-17)*
+- [`c12ebbd`] **feat(empoleon-model): definir entidades base DroneAcuatico y familias de drones especializados** *(por Oscar10lm el 2026-10-17)*
+- [`57c5876`] **feat(prinplup-tdd): implementar Reto 12 TDD con Mockito en AsignadorAutomaticoMisiones** *(por Oscar10lm el 2026-10-17)*
+- [`f347a48`] **feat(docs): actualizar diagrama de casos de uso v2 con actores nuevos, include y extend (Reto 10)** *(por Oscar10lm el 2026-10-13)*
+- [`f9a9a34`] **feat(ux): disenar componentes 6 estados tarjeta, 5 estados boton, flujo 3 pantallas y leyes Fitts/Hick (Reto 08)** *(por Oscar10lm el 2026-10-12)*
+- [`13603cb`] **feat(prinplup): implementar patrones Factory Method, Strategy y Observer con pruebas Mockito (Reto 03)** *(por Oscar10lm el 2026-10-12)*
+- [`9e836c1`] **feat(prinplup): implementar centro de control con recepcion de alertas automaticas en tiempo real** *(por Oscar10lm el 2026-10-12)*
+- [`b38f4c7`] **feat(prinplup): implementar asignacion automatica de drones segun condiciones hidricas y carga** *(por Oscar10lm el 2026-10-12)*
+- [`f390ea7`] **feat(prinplup): implementar FabricaDrones con patron Factory Method para la flota v2** *(por Oscar10lm el 2026-10-12)*
+
+### 🐛 Correcciones de Errores (Fixes)
+
+- [`90cb923`] **fix(hotfix): corregir validacion preventiva de bateria critica en v1.0** *(por Oscar10lm el 2026-10-12)*
+- [`d38d9d0`] **fix: prevenir posible NullPointerException al validar rutas en ValidadorMision (Sonar java:S2259)** *(por Oscar10lm el 2026-10-12)*
+
+### ♻️ Refactorización de Arquitectura
+
+- [`5088573`] **refactor(sonarqube): resolver bugs, smells y Quality Gate v2 (Reto 14)** *(por Oscar10lm el 2026-10-17)*
+- [`e3bad06`] **refactor: centralizar zonas hidricas en clase de constantes ZonasCampus (Sonar java:S1192 y java:S1118)** *(por Oscar10lm el 2026-10-12)*
+- [`2954081`] **refactor: reemplazar System.out por Logger en NotificadorOperador (Sonar java:S106)** *(por Oscar10lm el 2026-10-12)*
+- [`b15d136`] **refactor: eliminar import no utilizado java.util.Objects en Mision (Sonar java:S1128)** *(por Oscar10lm el 2026-10-12)*
+- [`b3e113e`] **refactor: extraer helpers en ValidadorMision y reutilizar metodos probados** *(por Oscar10lm el 2026-10-12)*
+
+### 🧪 Pruebas Unitarias y de Integración
+
+- [`7b7fdab`] **test(empoleon-arch): auditar limites de lineas y dominio desacoplado** *(por Oscar10lm el 2026-10-17)*
+- [`fae2f8b`] **test(empoleon-streams): validar streams y colector en una sola pasada** *(por Oscar10lm el 2026-10-17)*
+- [`ff9682f`] **test(prinplup): agregar pruebas unitarias completas para ConsultorFlotaAvanzado (Reto 01)** *(por Oscar10lm el 2026-10-12)*
+- [`243db95`] **test: ampliar pruebas unitarias de ValidadorMision para alcanzar 90.9% de line coverage** *(por Oscar10lm el 2026-10-12)*
+- [`d4531e0`] **test: escribir pruebas Red de ValidadorMision (bateria, disponibilidad, punto de llegada y zona)** *(por Oscar10lm el 2026-10-12)*
+
+### 📚 Documentación y Diagramas
+
+- [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
+- [`7a314c0`] **docs(prinplup-ux): implementar Reto 11 Mocks con IA y diseno de pantallas de asignacion autonoma** *(por Oscar10lm el 2026-10-17)*
+- [`2bbb71b`] **docs(sonarqube): documentar auditoria estatica v2 y adjuntar captura dashboard 4 indicadores verdes (Reto 14)** *(por Oscar10lm el 2026-10-17)*
+- [`55b80a5`] **docs(agile): planificar sprint de Jira v2 con Fibonacci, DoD y captura de sprint activo (Reto 09)** *(por Oscar10lm el 2026-10-12)*
+- [`269ae75`] **docs(prinplup): completar plantilla DOSW para RF AP-07 asignacion automatica (Reto 07)** *(por Oscar10lm el 2026-10-12)*
+- [`0c55a61`] **docs(prinplup): documentar especificacion RF/RNF, MoSCoW y resolucion tension AP-07 vs AP-08 (Reto 06)** *(por Oscar10lm el 2026-10-12)*
+- [`9b8a197`] **docs(prinplup): agregar diagrama de contexto C4 comparando MVP v1 vs v2 y flujos etiquetados (Reto 05)** *(por Oscar10lm el 2026-10-12)*
+- [`c17965c`] **docs(prinplup): documentar auditoria y cumplimiento de principios SOLID en README (Reto 04)** *(por Oscar10lm el 2026-10-12)*
+- [`41b83c5`] **docs(prinplup): documentar flujo GitFlow con diagrama Mermaid, ramas y tags (Reto 02)** *(por Oscar10lm el 2026-10-12)*
+- [`14e6e97`] **docs(prinplup): documentar contexto v2, consultas funcionales y ejecucion en README (Reto 01)** *(por Oscar10lm el 2026-10-12)*
+- [`8e0eff4`] **docs: documentar analisis SonarQube, metricas de calidad y dashboard en README (Reto 14)** *(por Oscar10lm el 2026-10-12)*
+- [`14a8b68`] **docs: documentar resultados de JaCoCo y adjuntar captura del reporte de cobertura** *(por Oscar10lm el 2026-10-12)*
+- [`1ddf681`] **docs: documentar ciclo TDD y casos de prueba de ValidadorMision** *(por Oscar10lm el 2026-10-12)*
+- [`353acd4`] **docs: integrar prototipo interactivo HTML de la estacion de control en README** *(por Oscar10lm el 2026-10-12)*
+- [`f065870`] **docs: verificar heurísticas de Nielsen para los 3 estados del panel de control** *(por Oscar10lm el 2026-10-12)*
+
+### ⚙️ Integración Continua y Calidad
+
+- [`3218a49`] **ci(empoleon-gitflow): configurar hooks de Conventional Commits y pre-push** *(por Oscar10lm el 2026-10-17)*
+
+### 🔧 Tareas de Mantenimiento y Releases
+
+- [`3bc913a`] **chore(release): consolidar checklist y notas oficiales de estabilizacion para release v2.0.0** *(por Oscar10lm el 2026-10-17)*
+- [`f5affc7`] **chore(release): preparar version v2.0.0 y estabilizacion de release** *(por Oscar10lm el 2026-10-12)*
+- [`c58716b`] **chore: configurar JaCoCo 0.8.11 en el pom.xml de Piplup** *(por Oscar10lm el 2026-10-12)*
+- [`1ed68aa`] **chore: configurar Maven con JUnit 5 para pruebas del modulo Piplup** *(por Oscar10lm el 2026-10-12)*
+- [`627ea7b`] **chore: configurar .gitignore para proyectos Java e IDEs** *(por Oscar10lm el 2026-10-12)*
+
+### 📦 Otros Commits de Consolidación
+
+- [`434c4a1`] build: configurar sonar-maven-plugin y propiedades de analisis SonarQube en pom.xml *(2026-10-12)*
+- [`eb32436`] Initial commit *(2026-10-12)*
