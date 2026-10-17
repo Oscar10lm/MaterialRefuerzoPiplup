@@ -68,6 +68,10 @@ public abstract class DroneAcuatico {
         return estado.isDisponible();
     }
 
+    public String transmitirTelemetria() {
+        return String.format("ID=%s;BAT=%d%%;ZONA=%s", id, bateria, zona);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
