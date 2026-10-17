@@ -44,6 +44,21 @@ public class CondicionHidrica {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CondicionHidrica that)) return false;
+        return Double.compare(that.temperaturaCelsius, temperaturaCelsius) == 0 &&
+                Double.compare(that.profundidadMetros, profundidadMetros) == 0 &&
+                nivelAgua == that.nivelAgua &&
+                turbidez == that.turbidez;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nivelAgua, turbidez, temperaturaCelsius, profundidadMetros);
+    }
+
+    @Override
     public String toString() {
         return String.format("Condicion[%s | Turbidez: %s | Temp: %.1fC | Prof: %.1fm]",
                 nivelAgua, turbidez, temperaturaCelsius, profundidadMetros);

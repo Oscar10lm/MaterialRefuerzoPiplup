@@ -98,6 +98,18 @@ public class MisionEnterprise {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MisionEnterprise that)) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public String toString() {
         return String.format("MisionEnt[%s | %s -> %s | Est: %s | WPs: %d]",
                 id, zonaOrigen, zonaDestino, estado, waypoints.size());

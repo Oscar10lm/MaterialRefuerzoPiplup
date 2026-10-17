@@ -52,6 +52,18 @@ public class TramoRuta {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TramoRuta that)) return false;
+        return Objects.equals(idTramo, that.idTramo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(idTramo);
+    }
+
+    @Override
     public String toString() {
         return String.format("Tramo[%s: %s -> %s | Drone: %s (%.2f km)]",
                 idTramo, origen.getNombre(), destino.getNombre(), droneAsignado.getId(), distanciaKm);
