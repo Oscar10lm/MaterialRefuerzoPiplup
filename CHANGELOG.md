@@ -50,6 +50,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`e12ab89`] **docs(empoleon): integrar retos 07 y 08 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`967ee80`] **docs(empoleon-ux): construir design system tokens 6 pantallas y prototipo HTML** *(por Oscar10lm el 2026-10-17)*
 - [`3dd4fd9`] **docs(empoleon-dosw): completar plantilla DOSW AP-15 mision multi-etapa** *(por Oscar10lm el 2026-10-17)*
 - [`d95a4a7`] **docs: actualizar CHANGELOG tras merge de Retos 05 y 06 Empoleon** *(por Oscar10lm el 2026-10-17)*
@@ -64,7 +65,6 @@
 - [`2bbb71b`] **docs(sonarqube): documentar auditoria estatica v2 y adjuntar captura dashboard 4 indicadores verdes (Reto 14)** *(por Oscar10lm el 2026-10-17)*
 - [`55b80a5`] **docs(agile): planificar sprint de Jira v2 con Fibonacci, DoD y captura de sprint activo (Reto 09)** *(por Oscar10lm el 2026-10-12)*
 - [`269ae75`] **docs(prinplup): completar plantilla DOSW para RF AP-07 asignacion automatica (Reto 07)** *(por Oscar10lm el 2026-10-12)*
-- [`0c55a61`] **docs(prinplup): documentar especificacion RF/RNF, MoSCoW y resolucion tension AP-07 vs AP-08 (Reto 06)** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 
