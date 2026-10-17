@@ -37,15 +37,30 @@ class ArquitecturaEnterpriseTest {
         try (Stream<Path> paths = Files.walk(modelDir)) {
             List<Path> javaFiles = paths.filter(p -> p.toString().endsWith(".java")).toList();
             for (Path file : javaFiles) {
-                List<String> imports = Files.lines(file)
-                        .map(String::trim)
-                        .filter(l -> l.startsWith("import "))
-                        .toList();
+                List<String> imports = Files.lines(file).map(String::trim).filter(l -> l.startsWith("import ")).toList();
                 for (String imp : imports) {
                     boolean permitida = imp.startsWith("import java.lang") ||
                             imp.startsWith("import java.util") ||
                             imp.startsWith("import aquaport.model");
                     assertTrue(permitida, "Import prohibido en capa de dominio en " + file.getFileName() + ": " + imp);
+                }
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("Cero acoplamiento: El dominio y servicios nunca instancian clases de infraestructura")
+    void dominioYServicios_sinInstanciacionInfraestructura() throws IOException {
+        Path domainAndService = SRC_PATH.resolve("aquaport");
+        try (Stream<Path> paths = Files.walk(domainAndService)) {
+            List<Path> files = paths.filter(p -> p.toString().endsWith(".java"))
+                    .filter(p -> !p.toString().contains("infrastructure") && !p.toString().contains("MainEmpoleon"))
+                    .toList();
+            for (Path file : files) {
+                List<String> codeLines = Files.lines(file).toList();
+                for (String line : codeLines) {
+                    assertFalse(line.contains("new Adaptador") || line.contains("new ServicioAPI"),
+                            "Violacion DIP: Instanciacion directa de infraestructura en " + file.getFileName() + ": " + line);
                 }
             }
         }
