@@ -50,6 +50,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`dfbb62a`] **docs(empoleon): integrar retos 05 y 06 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`a26d8e3`] **docs(empoleon-rf): documentar 5 RF, 5 RNF, MoSCoW y analisis de tensiones** *(por Oscar10lm el 2026-10-17)*
 - [`db67ab6`] **docs(empoleon-c4): disenar diagrama C4 nivel 2 de contenedores** *(por Oscar10lm el 2026-10-17)*
 - [`5e2ecc9`] **docs: actualizar CHANGELOG tras merge de Retos 03 y 04 Empoleon** *(por Oscar10lm el 2026-10-17)*
@@ -64,7 +65,6 @@
 - [`9b8a197`] **docs(prinplup): agregar diagrama de contexto C4 comparando MVP v1 vs v2 y flujos etiquetados (Reto 05)** *(por Oscar10lm el 2026-10-12)*
 - [`c17965c`] **docs(prinplup): documentar auditoria y cumplimiento de principios SOLID en README (Reto 04)** *(por Oscar10lm el 2026-10-12)*
 - [`41b83c5`] **docs(prinplup): documentar flujo GitFlow con diagrama Mermaid, ramas y tags (Reto 02)** *(por Oscar10lm el 2026-10-12)*
-- [`14e6e97`] **docs(prinplup): documentar contexto v2, consultas funcionales y ejecucion en README (Reto 01)** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 
