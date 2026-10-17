@@ -62,4 +62,13 @@ class FabricaDronesTest {
         assertThrows(NullPointerException.class, () ->
                 fabrica.crearDrone(null, "D-01", "Model", 50, EstadoDrone.DISPONIBLE, ZonasCampus.EMBALSE_NORTE));
     }
+
+    @Test
+    @DisplayName("Método auxiliar crearBuceador retorna instancia inicializada como DISPONIBLE")
+    void crearBuceadorAuxiliar_retornaInstanciaDisponible() {
+        DroneBuceador db = fabrica.crearBuceador("DB-HELPER", "Probe H", 88, ZonasCampus.BAHIA_CIENCIA);
+        assertEquals("DB-HELPER", db.getId());
+        assertEquals(EstadoDrone.DISPONIBLE, db.getEstado());
+        assertEquals(TipoDrone.BUCEADOR, db.getTipo());
+    }
 }

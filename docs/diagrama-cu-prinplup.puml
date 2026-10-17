@@ -1,0 +1,83 @@
+@startuml diagrama-cu-prinplup
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam handwritten false
+skinparam defaultFontName "Segoe UI"
+skinparam fontSize 13
+
+skinparam actor {
+    BackgroundColor #084298
+    BorderColor #052c65
+    FontColor #084298
+    FontStyle bold
+}
+
+skinparam usecase {
+    BackgroundColor #E0F2FE
+    BorderColor #0284C7
+    FontColor #0F172A
+    ArrowColor #334155
+    ArrowFontColor #475569
+    ArrowFontSize 11
+}
+
+skinparam rectangle {
+    BackgroundColor #F8FAFC
+    BorderColor #64748B
+    FontColor #0F172A
+    FontSize 15
+    FontStyle bold
+}
+
+' =========================================================================
+' ACTORES v2 (Con Generalización)
+' =========================================================================
+actor "Usuario del Sistema" as user_base <<Base>>
+actor "Operador Hídrico" as operador
+actor "Solicitante" as solicitante
+actor "Técnico de Mantenimiento\n(Nuevo v2)" as tecnico <<Nuevo>>
+actor "Centro de Control ECI\n(Nuevo v2)" as centro_control <<Sistema/Autoridad>>
+
+' Generalización de actores
+operador -up-|> user_base : <<extends / hereda>>
+solicitante -up-|> user_base : <<extends / hereda>>
+
+' =========================================================================
+' LÍMITE DEL SISTEMA: AQUAPORT v2 (PRINPLUP)
+' =========================================================================
+rectangle "Sistema AquaPort v2 (Prinplup) — Fleet Control Station" {
+
+    ' Casos de Uso Nucleares
+    usecase "AP-07: Asignar Misión\nAutomáticamente" as CU_AutoAssign
+    usecase "Validar Condiciones Hídricas\n(API Externa)" as CU_ValidarHidricas
+    usecase "Notificar Fallo al Técnico\ny Centro de Control" as CU_NotificarFallo
+    usecase "Autorizar Corredor Acuático\ny Plan de Vuelo" as CU_Clearance
+    usecase "Solicitar Misión de\nTransporte o Muestreo" as CU_Solicitar
+    usecase "Monitorear Telemetría de\n15 Drones en Tiempo Real" as CU_Monitoreo
+    usecase "Gestionar Reparación y\nReintegrar Drone a Flota" as CU_Reparacion
+    usecase "Consultar Historial y\nReportes de Flota" as CU_Reportes
+
+    ' Relaciones de Inclusión y Extensión requeridas
+    CU_AutoAssign .> CU_ValidarHidricas : <<include>>\n[siempre obligatorio]
+    CU_AutoAssign .> CU_Clearance : <<include>>\n[autorización de ruta]
+
+    CU_NotificarFallo .> CU_AutoAssign : <<extend>>\n[condición: si drone entra\nen estado FALLO durante asignación]
+}
+
+' =========================================================================
+' ASOCIACIONES ENTRE ACTORES Y CASOS DE USO
+' =========================================================================
+solicitante --> CU_Solicitar
+CU_Solicitar ..> CU_AutoAssign : <<invoca / trigger>>
+
+operador --> CU_AutoAssign
+operador --> CU_Monitoreo
+user_base --> CU_Reportes
+
+CU_Clearance --> centro_control : <<autorización / clearance>>
+CU_NotificarFallo --> tecnico : <<orden de servicio urgente>>
+CU_NotificarFallo --> centro_control : <<alerta telemétrica>>
+tecnico --> CU_Reparacion
+
+@enduml
