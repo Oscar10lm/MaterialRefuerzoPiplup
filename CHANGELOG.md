@@ -50,6 +50,9 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`794697e`] **docs(empoleon-cu): modelar casos de uso con 5 flujos alternos extendidos** *(por Oscar10lm el 2026-10-17)*
+- [`c3cec6d`] **docs(empoleon-jira): planificar roadmap 3 sprints y retrospectiva en Jira** *(por Oscar10lm el 2026-10-17)*
+- [`104d53c`] **docs: actualizar CHANGELOG tras merge de Retos 07 y 08 Empoleon** *(por Oscar10lm el 2026-10-17)*
 - [`e12ab89`] **docs(empoleon): integrar retos 07 y 08 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`967ee80`] **docs(empoleon-ux): construir design system tokens 6 pantallas y prototipo HTML** *(por Oscar10lm el 2026-10-17)*
 - [`3dd4fd9`] **docs(empoleon-dosw): completar plantilla DOSW AP-15 mision multi-etapa** *(por Oscar10lm el 2026-10-17)*
@@ -62,9 +65,6 @@
 - [`7aa844b`] **docs(empoleon): documentar retos 01 y 02 y consolidar CHANGELOG automatico** *(por Oscar10lm el 2026-10-17)*
 - [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
 - [`7a314c0`] **docs(prinplup-ux): implementar Reto 11 Mocks con IA y diseno de pantallas de asignacion autonoma** *(por Oscar10lm el 2026-10-17)*
-- [`2bbb71b`] **docs(sonarqube): documentar auditoria estatica v2 y adjuntar captura dashboard 4 indicadores verdes (Reto 14)** *(por Oscar10lm el 2026-10-17)*
-- [`55b80a5`] **docs(agile): planificar sprint de Jira v2 con Fibonacci, DoD y captura de sprint activo (Reto 09)** *(por Oscar10lm el 2026-10-12)*
-- [`269ae75`] **docs(prinplup): completar plantilla DOSW para RF AP-07 asignacion automatica (Reto 07)** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 

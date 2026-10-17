@@ -380,6 +380,73 @@ Prototipo interactivo funcional: [`docs/aquaport-enterprise-ux-flota.html`](file
 
 ---
 
+## 🏃‍♂️ Reto 09: Agilismo y Planificación del Roadmap en Jira Software
+
+Documento maestro detallado: [`docs/agilismo-jira-roadmap-empoleon.md`](file:///docs/agilismo-jira-roadmap-empoleon.md).
+
+![Roadmap Jira Enterprise](../docs/jira-roadmap-empoleon.png)
+
+* **Capacidad Total:** 4 Ingenieros (320 horas hombre por sprint).
+* **Compromiso Total del Release v3.0:** **72 Story Points (SP)** distribuidos en 3 Sprints.
+
+### 1. Planificación de los 3 Sprints
+
+| Sprint | Fechas | Story Points | Sprint Goal | Estado |
+|---|---|---|---|---|
+| **Sprint 1: Arquitectura y Patrones** | 01 Oct – 14 Oct | **24 SP** | Desacoplar dominio (SOLID) e implementar Chain of Responsibility, Decorator y Adapter. | `COMPLETED` |
+| **Sprint 2: Rutas y Coordinación** | 15 Oct – 28 Oct | **26 SP** | Planificador multi-etapa con waypoints, reasignación $\le 3.0\text{s}$ y coordinación en 4 zonas. | `IN PROGRESS` |
+| **Sprint 3: Calidad y Certificación** | 29 Oct – 11 Nov | **22 SP** | Quality Gate JaCoCo $\ge 85\%$ líneas / $\ge 75\%$ ramas, SonarQube Rating A (0 bugs/deuda). | `PLANNED` |
+
+### 2. Definition of Done (DoD) Enterprise
+1. Dominio puramente Java (`aquaport.model`) con 0 dependencias externas.
+2. Clases $\le 150$ líneas y métodos $\le 15$ líneas auditados por tests automatizados.
+3. 100% de tests unitarios pasando en JUnit 5 y Mockito.
+4. Cobertura JaCoCo $\ge 85\%$ de líneas y $\ge 75\%$ de ramas.
+5. SonarQube: 0 bugs, 0 vulnerabilidades y deuda técnica $< 15$ minutos.
+6. Commits atómicos validados por Conventional Commits.
+
+### 3. Retrospectiva Real de Ingeniería (Sprint 1)
+* **¿Qué funcionó bien?** La auditoría de arquitectura con `ArquitecturaEnterpriseTest` bloqueó tempranamente imports prohibidos; los tests con Mockito aseguraron que la cadena se detuviera de forma determinista en el primer fallo.
+* **¿Qué no funcionó?** La cobertura de ramas en JaCoCo cayó inesperadamente al 74% a mitad de sprint por métodos utilitarios de enums en dominio (`NivelAgua.esNavegable()`), obligando a escribir tests de ramas complementarios.
+* **¿Qué cambiaremos?** Adopción de TDD con `@ParameterizedTest` para todos los valores límite desde el inicio y verificación de cobertura de JaCoCo en el hook local `pre-push`.
+
+---
+
+## 📐 Reto 10: Diagrama de Casos de Uso Enterprise
+
+Documento maestro detallado: [`docs/diagrama-casos-uso-empoleon.md`](file:///docs/diagrama-casos-uso-empoleon.md).  
+Código fuente PlantUML: [`docs/diagrama-cu-empoleon.puml`](file:///docs/diagrama-cu-empoleon.puml).
+
+![Diagrama Casos de Uso Enterprise](../docs/diagrama-cu-empoleon.png)
+
+### Caso de Uso Nuclear (AP-15) y Relaciones `<<include>>`
+* **Caso Base:** `CU-01: Ejecutar Misión Multi-Etapa con Waypoints` (Operador de Misión / AquaPort Core).
+* **4 Inclusiones Obligatorias:**
+  1. `CU-02: Validar Misión con Cadena de Responsabilidad` (`<<include>>`)
+  2. `CU-03: Consultar Condiciones Hídricas Zonales (Adapter)` (`<<include>>`)
+  3. `CU-04: Coordinar Traspaso Físico en Waypoint / Esclusa` (`<<include>>`)
+  4. `CU-05: Sellar Acta Digital de Cadena de Custodia (SHA-256)` (`<<include>>`)
+
+### Los 5 Flujos Alternos como Extensiones (`<<extend>>`) con Condiciones Explícitas
+
+1. **`CU-EXT-01: Reasignar Drone Automáticamente en Waypoint`:**
+   * *Condición:* `[Drone entra en estado FALLO o pierde telemetría > 5.0 segundos]`
+   * Despacho automático de relevo en la misma zona con batería $\ge 50\%$ en $\le 3.0\text{s}$.
+2. **`CU-EXT-02: Desviar Ruta por Condiciones Hídricas Adversas`:**
+   * *Condición:* `[Oleaje > 2.0 metros o corriente superior a 1.5 m/s en canal del tramo]`
+   * Reenrutamiento por canales secundarios verificando autonomía de batería remanente.
+3. **`CU-EXT-03: Activar Espera Pasiva en Boya Climatizada`:**
+   * *Condición:* `[Muelle de descarga del Laboratorio Central saturado o temporalmente inactivo]`
+   * Maniobra de espera con refrigeración termoeléctrica activa de muestra ($4.0^\circ\text{C}$).
+4. **`CU-EXT-04: Aislar Muestra y Reintentar Certificación de Custodia` (Extiende `CU-05`):**
+   * *Condición:* `[Discrepancia en hash SHA-256 o degradación térmica de muestra > 6.0°C]`
+   * Marcado en cuarentena para auditoría legal y orden de repetición prioritaria en LIMS.
+5. **`CU-EXT-05: Ejecutar Anclaje de Emergencia por Batería Crítica`:**
+   * *Condición:* `[Nivel de batería del drone desciende súbitamente a <= 20% en mitad de tramo]`
+   * Anclaje magnético en boya fija más cercana y activación de radiobaliza para el Técnico de Rescate.
+
+---
+
 ## 💻 Ejecución de la Demostración Enterprise
 
 ```powershell
