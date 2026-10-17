@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+# AquaPort Enterprise - Hook de proteccion de ramas protegidas (main y develop)
+
+protected_branches="main develop"
+current_branch=$(git symbolic-ref --short HEAD 2>/dev/null)
+
+for branch in $protected_branches; do
+    if [ "$current_branch" = "$branch" ]; then
+        echo "🛡️ [PROTECCION ENTERPRISE] Push directo a rama '$branch' esta bloqueado."
+        echo "   Politica: Todos los cambios deben ingresar mediante Pull Request validado."
+        echo "   Crea una rama feature/ o fix/ y solicita aprobacion."
+        exit 1
+    fi
+done
+
+exit 0
