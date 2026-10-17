@@ -51,6 +51,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`2e4ca42`] **docs(empoleon): integrar retos 13 y 14 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`a85372b`] **docs(empoleon-qa): configurar quality gate y certificar 6 indicadores sonarqube** *(por Oscar10lm el 2026-10-17)*
 - [`83f29ae`] **docs: actualizar CHANGELOG tras merge de Retos 09 y 10 Empoleon** *(por Oscar10lm el 2026-10-17)*
 - [`ebe306d`] **docs(empoleon): integrar retos 09 y 10 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
@@ -65,7 +66,6 @@
 - [`a26d8e3`] **docs(empoleon-rf): documentar 5 RF, 5 RNF, MoSCoW y analisis de tensiones** *(por Oscar10lm el 2026-10-17)*
 - [`db67ab6`] **docs(empoleon-c4): disenar diagrama C4 nivel 2 de contenedores** *(por Oscar10lm el 2026-10-17)*
 - [`5e2ecc9`] **docs: actualizar CHANGELOG tras merge de Retos 03 y 04 Empoleon** *(por Oscar10lm el 2026-10-17)*
-- [`e5d8ad3`] **docs(empoleon): documentar patrones Chain, Decorator, Adapter y principios SOLID** *(por Oscar10lm el 2026-10-17)*
 
 ### ⚙️ Integración Continua y Calidad
 
@@ -73,6 +73,7 @@
 
 ### 🔧 Tareas de Mantenimiento y Releases
 
+- [`92fa881`] **chore(merge): fusionar feature/empoleon-qa-architecture en develop** *(por Oscar10lm el 2026-10-17)*
 - [`3bc913a`] **chore(release): consolidar checklist y notas oficiales de estabilizacion para release v2.0.0** *(por Oscar10lm el 2026-10-17)*
 - [`f5affc7`] **chore(release): preparar version v2.0.0 y estabilizacion de release** *(por Oscar10lm el 2026-10-12)*
 - [`c58716b`] **chore: configurar JaCoCo 0.8.11 en el pom.xml de Piplup** *(por Oscar10lm el 2026-10-12)*
