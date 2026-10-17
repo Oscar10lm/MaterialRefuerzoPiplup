@@ -152,6 +152,102 @@ Valida mediante expresiones regulares antes de persistir cualquier commit que el
 ### 4. Generación Automatizada del `CHANGELOG.md`
 El archivo [`CHANGELOG.md`](file:///CHANGELOG.md) es generado y actualizado automáticamente a partir del árbol de commits clasificado por tipos.
 
+## 🏗️ Reto 03: Patrones de Diseño de Producción (Enterprise)
+
+Para la escala de 60 drones y misiones multi-etapa, AquaPort Enterprise integra tres patrones de diseño arquitecturales:
+
+### 1. Chain of Responsibility (Cadena de Validación de Misiones)
+La validación previa al despacho de cualquier misión multi-etapa se desacopla en eslabones independientes que extienden [`AbstractValidadorMision`](file:///Empoleon/src/aquaport/service/chain/AbstractValidadorMision.java):
+$$\text{ValidadorBateria} \longrightarrow \text{ValidadorCapacidadCarga} \longrightarrow \text{ValidadorZonaActiva} \longrightarrow \text{ValidadorCondicionesHidricas}$$
+
+* **Regla de Ejecución:** Si un eslabón detecta una condición anómala (ej. batería $<35\%$ o $<50\%$ crítica, peso $>1.5\text{kg}$, zona no coincidente o aguas tormentosas), la cadena **se detiene de inmediato** retornando el motivo exacto de rechazo sin invocar los validadores posteriores.
+* **Prueba Mockito ([`CadenaValidacionTest.java`](file:///Empoleon/test/aquaport/service/chain/CadenaValidacionTest.java)):** Se verifica mediante `verify(validadorSiguiente, never()).validar(...)` que la detención ocurre de manera determinista ante el primer fallo.
+
+---
+
+### 2. Decorator (Telemetría y Seguridad Apilable en Drones)
+Permite enriquecer dinámicamente cualquier instancia de [`DroneAcuatico`](file:///Empoleon/src/aquaport/model/DroneAcuatico.java) sin modificar las clases base ni crear subclases combinatorias:
+
+* [`DroneConMonitoreo`](file:///Empoleon/src/aquaport/service/decorator/DroneConMonitoreo.java): Registra auditoría y telemetría enriquecida en memoria (`transmitirTelemetria()`).
+* [`DroneConCifrado`](file:///Empoleon/src/aquaport/service/decorator/DroneConCifrado.java): Cifra el payload en un sobre criptográfico `[ENCRYPTED:AES-256:...]`.
+* **Apilamiento Polimórfico:**
+  ```java
+  DroneAcuatico droneSeguro = new DroneConCifrado(
+      new DroneConMonitoreo(droneBuceador)
+  );
+  ```
+* **Prueba Mockito ([`DroneDecoratorTest.java`](file:///Empoleon/test/aquaport/service/decorator/DroneDecoratorTest.java)):** Demuestra que el decorador mantiene intactas todas las propiedades invariantes del drone (`id`, `modelo`, `bateria`, `capacidadCargaKg`, `tipo`) mientras añade las capacidades operativas ortogonales.
+
+---
+
+### 3. Adapter (Aislamiento de la API Externa de Condiciones Hídricas)
+La API meteorológica externa de la ECI entrega campos en inglés (`waterLevel`, `turbidity`, `temperature`, `depth`). Para evitar que el dominio conozca detalles de proveedores externos, se implementa la arquitectura Ports & Adapters (Hexagonal):
+
+* **Puerto del Dominio:** [`ProveedorCondicionesHidricas`](file:///Empoleon/src/aquaport/service/ProveedorCondicionesHidricas.java).
+* **Entidad de Infraestructura:** [`ExternalHydricApiResponse`](file:///Empoleon/src/aquaport/infrastructure/external/ExternalHydricApiResponse.java) y [`ServicioAPIHidricaExterna`](file:///Empoleon/src/aquaport/infrastructure/external/ServicioAPIHidricaExterna.java).
+* **Adaptador:** [`AdaptadorAPIHidrica`](file:///Empoleon/src/aquaport/infrastructure/adapter/AdaptadorAPIHidrica.java), que convierte los valores cuantitativos externos a los enums canónicos del dominio ([`NivelAgua`](file:///Empoleon/src/aquaport/model/NivelAgua.java) y [`NivelTurbidez`](file:///Empoleon/src/aquaport/model/NivelTurbidez.java)).
+* **Prueba Mockito ([`AdaptadorAPIHidricaTest.java`](file:///Empoleon/test/aquaport/infrastructure/adapter/AdaptadorAPIHidricaTest.java)):** Valida exhaustivamente los valores frontera (`0.0`, `2.0`, `2.1`, `4.0`, `4.1`, `6.0`, `6.1`, `10.0`, `10.1`, `50.0`, `50.1`, `100.0`, `100.1`) y el manejo de respuestas nulas defensivas.
+
+---
+
+## 📐 Reto 04: Principios SOLID y Arquitectura Limpia
+
+### 1. La Regla de Oro del Nivel Empoleon
+> [!IMPORTANT]
+> **Dominio Puro Sin Dependencias Externas:**  
+> El paquete `aquaport.model` no contiene ningún import de librerías externas (Mockito, Jackson, HttpClient, etc.) ni de capas superiores. Solo utiliza Java estándar (`java.lang`, `java.util`). Las dependencias de infraestructura se aíslan en `aquaport.infrastructure` y se inyectan a los servicios mediante interfaces de puerto.
+
+### 2. Cumplimiento de los 5 Principios SOLID
+
+| Principio | Aplicación en AquaPort Enterprise | Beneficio Arquitectural |
+|---|---|---|
+| **S (Single Responsibility)** | Cada eslabón de la cadena (`ValidadorBateria`, `ValidadorCapacidadCarga`, etc.) valida una única dimensión física. Cada decorador añade una única funcionalidad (monitoreo o cifrado). | Código mantenible, cohesivo y con métodos estrictamente $\le 15$ líneas. |
+| **O (Open/Closed)** | Para incorporar un nuevo criterio de validación (ej. salinidad del agua), solo se crea una nueva clase `ValidadorSalinidad` enlazándola a la cadena sin alterar los validadores existentes ni el asignador. | Cero modificaciones en código probado y estable. |
+| **L (Liskov Substitution)** | Cualquier `DroneDecorator` (`DroneConMonitoreo`, `DroneConCifrado`) es un `DroneAcuatico` válido que puede pasarse a cualquier servicio o lista de flota sin romper contratos. | Sustituibilidad polimórfica total y transparente. |
+| **I (Interface Segregation)** | Interfaces pequeñas y enfocadas: `ValidadorMisionHandler` (solo 2 métodos), `ProveedorCondicionesHidricas` (solo 1 método), `ServicioAPIHidricaExterna` (solo 1 método). | Ningún cliente depende de métodos que no utiliza. |
+| **D (Dependency Inversion)** | Los servicios de dominio dependen de la abstracción `ProveedorCondicionesHidricas`. La implementación concreta `AdaptadorAPIHidrica` vive en la capa de infraestructura y se inyecta por constructor. | Desacoplamiento total de APIs de terceros o protocolos HTTP. |
+
+---
+
+### 3. Mapa de Dependencias entre Capas (Hexagonal / Clean Architecture)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           CAPA DE INFRAESTRUCTURA                               │
+│  [ServicioAPIHidricaExterna] ──(DTOs en inglés)──> [ExternalHydricApiResponse]  │
+│                                      │                                          │
+│                                      ▼                                          │
+│                           [AdaptadorAPIHidrica]                                 │
+└──────────────────────────────────────┬──────────────────────────────────────────┘
+                                       │ Implementa (implements)
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              CAPA DE SERVICIOS                                  │
+│                   [ProveedorCondicionesHidricas] (Puerto)                       │
+│                                      ▲                                          │
+│                                      │ Inyectado en                             │
+│       [ConsultorFlotaEnterprise]     │     [ValidadorMisionHandler]             │
+│       [Flota60Factory]               │     [BateriaPromedioCollector]           │
+└──────────────────────────────────────┼──────────────────────────────────────────┘
+                                       │ Depende de (usa)
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              CAPA DE DOMINIO                                    │
+│                 (Puro Java: sin dependencias externas)                          │
+│                                                                                 │
+│   [DroneAcuatico] ◄── [DroneSuperficial, DroneSemisumergido, DroneBuceador]     │
+│   [MisionEnterprise] ──> [Waypoint] / [TramoRuta]                               │
+│   [CondicionHidrica] ──> [NivelAgua] / [NivelTurbidez]                          │
+│   [ContextoValidacion] ──> [ResultadoValidacion]                                │
+│   [ZonasEnterprise] (Constantes de las 4 Zonas ECI)                             │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+*Verificación automática ejecutada en [`ArquitecturaEnterpriseTest.java`](file:///Empoleon/test/aquaport/ArquitecturaEnterpriseTest.java):*
+1. `dominioModel_sinDependenciasExternas`: Garantiza 0 imports de infraestructura o librerías externas en `aquaport.model`.
+2. `dominioYServicios_sinInstanciacionInfraestructura`: Garantiza 0 invocaciones `new Adaptador...()` o `new ServicioAPI...()` en el dominio.
+3. Inyección estricta de dependencias por constructor en todas las clases de servicio.
+
 ---
 
 ## 💻 Ejecución de la Demostración Enterprise
