@@ -50,6 +50,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`ebe306d`] **docs(empoleon): integrar retos 09 y 10 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`794697e`] **docs(empoleon-cu): modelar casos de uso con 5 flujos alternos extendidos** *(por Oscar10lm el 2026-10-17)*
 - [`c3cec6d`] **docs(empoleon-jira): planificar roadmap 3 sprints y retrospectiva en Jira** *(por Oscar10lm el 2026-10-17)*
 - [`104d53c`] **docs: actualizar CHANGELOG tras merge de Retos 07 y 08 Empoleon** *(por Oscar10lm el 2026-10-17)*
@@ -64,7 +65,6 @@
 - [`e5d8ad3`] **docs(empoleon): documentar patrones Chain, Decorator, Adapter y principios SOLID** *(por Oscar10lm el 2026-10-17)*
 - [`7aa844b`] **docs(empoleon): documentar retos 01 y 02 y consolidar CHANGELOG automatico** *(por Oscar10lm el 2026-10-17)*
 - [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
-- [`7a314c0`] **docs(prinplup-ux): implementar Reto 11 Mocks con IA y diseno de pantallas de asignacion autonoma** *(por Oscar10lm el 2026-10-17)*
 
 ### ⚙️ Integración Continua y Calidad
 
