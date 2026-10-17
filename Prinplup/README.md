@@ -770,18 +770,103 @@ Para dar por concluida cualquier Historia de Usuario en este sprint, debe satisf
 
 ---
 
-## 🧪 Pruebas Unitarias (TDD / JUnit 5 / Mockito)
+## 🎨 Reto 11: Mocks y Diseño de Pantallas con IA (v2 Prinplup)
 
-La suite de pruebas contiene **60 pruebas unitarias** pasando al 100%:
-* [`AsignadorAutomaticoMisionesTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java) (14 pruebas: asignación autónoma, resolución tensión AP-07 vs AP-08, RNF-01 rendimiento <400ms, y 100% de ramas lógicas)
-* [`ModelosDominioTest.java`](file:///Prinplup/test/aquaport/model/ModelosDominioTest.java) (11 pruebas exhaustivas para el 100% de clases de `aquaport.model`)
-* [`EstrategiasSeleccionTest.java`](file:///Prinplup/test/aquaport/service/strategy/EstrategiasSeleccionTest.java) (3 pruebas: cobertura total de `MayorBateriaStrategy`, `PrioridadCriticaStrategy` y `ZonaCercanaStrategy`)
-* [`PrinplupServiciosYObservadoresTest.java`](file:///Prinplup/test/aquaport/service/PrinplupServiciosYObservadoresTest.java) (3 pruebas: observadores defensivos, validaciones de consultor y CLI)
-* [`SolidPrincipiosTest.java`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java) (4 pruebas: OCP, LSP, ISP, DIP)
-* [`ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java) (12 pruebas)
-* [`PatronesDisenoIntegracionTest.java`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java) (5 pruebas con Mockito)
-* [`FabricaDronesTest.java`](file:///Prinplup/test/aquaport/service/FabricaDronesTest.java) (4 pruebas)
-* [`CentroControlAlertasTest.java`](file:///Prinplup/test/aquaport/service/CentroControlAlertasTest.java) (4 pruebas)
+Para materializar el principio fundamental de la v2 (*"el sistema decide solo; el operador supervisa, no asigna"*), se diseñó el flujo completo de asignación autónoma asistido por IA, compuesto por **3 pantallas operativas principales** y **1 pantalla de contingencia crítica**:
+
+1. **Pantalla 1 — Panel de Flota (15 Drones):** Vista global agrupada en 3 tipos de casco con insignias cromáticas de estado y batería.
+2. **Pantalla 2 — Detalle de Misión & Recomendación IA:** Parámetros de la solicitud, condiciones del cuerpo de agua (API externa) y justificación explicable de la selección algorítmica.
+3. **Pantalla 3 — Confirmación de Despacho & Flota Actualizada:** Trazado de ruta en mapa batimétrico, telemetría y contadores reactivos de la flota.
+4. **Pantalla 4 — Alerta Crítica (Misión sin Drones Aptos):** Protocolo de excepción visual ante falta de unidades para misiones con prioridad `CRITICA`.
+
+### 1. Galería de Pantallas del Flujo Autónomo
+
+#### Pantalla 1: Panel de Flota de 15 Drones Agrupados por Tipo
+![Panel de Flota de 15 Drones](../docs/images/mock-panel-flota-prinplup.jpg)
+> **Prompt IA utilizado:**  
+> `Modern dark-themed UI dashboard for AquaPort autonomous water drone fleet management. High-tech dashboard showing 15 aquatic drones grouped into three sections: Superficial Drones, Semi-submerged Drones, and Submarine Diver Drones. Each drone has a sleek card showing battery level (green, yellow, red), operational status badge (DISPONIBLE in green, EN_MISION in blue, RECARGANDO in yellow, MANTENIMIENTO in gray, FALLO in red, SUMERGIDO in dark blue), payload capacity, and current water campus zone. Beautiful glassmorphic UI, glowing blue and cyan neon accents, clean typography, professional naval tech interface.`
+
+#### Pantalla 2: Detalle de Misión con Drone Recomendado y Justificación Algorítmica
+![Detalle de Misión y Recomendación](../docs/images/mock-detalle-mision-prinplup.jpg)
+> **Prompt IA utilizado:**  
+> `Futuristic dark-themed UI screen for AquaPort autonomous drone mission detail and AI recommendation. Left panel displays mission parameters: Mission ID M-AUTO-2026, Origin: Embalse Norte, Destination: Laguna Sur, Priority badge CRITICA in glowing orange-red, Payload: Water Sample 250g, Hydrological conditions: Agitated Water Level 3, Depth 8m. Center panel highlights 'RECOMMENDED DRONE: DM-03 Wave-Ranger M2 (Semisumergido)' with 90 percent battery in green, showing 3D wireframe render of the drone. Below it, an AI reasoning breakdown box: 'Strategy: MayorBateriaStrategy + ZonaCercana. Drone selected because Semisumergido hull is required for agitated water conditions, and has optimal 90% battery margin.' Large prominent glowing cyan CTA button: 'AUTORIZAR Y ASIGNAR MISION'.`
+
+#### Pantalla 3: Confirmación de Despacho con Estado Actualizado de la Flota
+![Confirmación de Despacho](../docs/images/mock-confirmacion-flota-prinplup.jpg)
+> **Prompt IA utilizado:**  
+> `Sleek dark-themed UI confirmation screen for AquaPort autonomous dispatch. Success banner with green neon checkmark reading 'MISION ASIGNADA Y DESPACHADA EXITOSAMENTE - CODIGO M-AUTO-2026'. Telemetry tracking map showing route from Embalse Norte to Laguna Sur with animated glowing path. Bottom dashboard shows the updated fleet status overview: Total Active Drones 15, Available: 7, On Mission: 3, Charging: 2, Maintenance: 2, Fault: 1. A real-time notification feed on the right side: 'Centro de Control notificado (ACK 200)', 'Técnico de Mantenimiento sincronizado'. Modern clean sci-fi operations center UI.`
+
+#### Pantalla 4: Alerta de Contingencia — Misión CRÍTICA sin Drones Disponibles
+![Alerta Crítica Sin Drones](../docs/images/mock-alerta-mision-critica-prinplup.png)
+> **Prompt IA utilizado:**  
+> `Dark-themed emergency alert UI screen for AquaPort autonomous operations center. Prominent red and crimson pulsing alarm banner across the top reading 'ALERTA CRITICA: MISION DE EMERGENCIA SIN DRONES APTOS DISPONIBLES'. Center modal dialog displaying mission details: Mission ID M-CRIT-99, Origin Bahía Ciencia, Destination Laguna Sur, Agitated Water Level 5, Required Payload 1.2kg. Diagnostic readout showing '0 Drones Available Meeting Technical Requirements (Semisumergido hull, Battery >50%)'. Emergency actions section: Large red emergency button 'SOLICITAR RELEVO DE FLOTA EXTERNA' and secondary button 'ACTIVAR MANTENIMIENTO PRIORITARIO'. Real-time push alert log showing 'CentroControlObserver: Notificado (Nivel Crítico)' and 'TecnicoMantenimientoObserver: Alerta enviada'. Futuristic cybernetic security operations console.`
+
+### 2. Fundamentos de Ergonomía Cognitiva y UX
+* **Ley de Hick ($T = b \cdot \log_2(n + 1)$):** La agrupación categórica de 15 drones en 3 familias de casco (`Superficial`, `Semisumergido`, `Buceador`) acorta el tiempo de scanning del operador frente a una lista homogénea de 15 filas desordenadas.
+* **Ley de Fitts ($ID = \log_2(2D/W)$):** Tanto el botón principal de autorización como los botones de contingencia ante alertas críticas poseen amplias áreas de impacto (anchura extendida y bordes luminosos), asegurando tiempos de reacción mínimos y reduciendo la tasa de error por clic.
+* Documento detallado de diseño y prompts: [`docs/mocks-ia-asignacion-automatica-prinplup.md`](../docs/mocks-ia-asignacion-automatica-prinplup.md).
+
+---
+
+## 🧪 Reto 12: Desarrollo Guiado por Pruebas (TDD) con Mockito y Casos de Contingencia
+
+La lógica del [`AsignadorAutomaticoMisiones`](file:///Prinplup/src/aquaport/service/AsignadorAutomaticoMisiones.java) fue implementada y blindada siguiendo el ciclo riguroso de **TDD (Test-Driven Development)** en [`AsignadorAutomaticoTDDTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoTDDTest.java), garantizando resiliencia ante contingencias operativas mediante dobles de prueba (Mocks).
+
+### 1. Las 5 Pruebas Obligatorias del Reto 12
+
+| # | Prueba Obligatoria | Escenario Evaluado | Comportamiento del Asignador / Aserción |
+|---|---|---|---|
+| **1** | **Happy Path (Asignación Exitosa)** | Flota con drones aptos y estrategia activa operativa. | Asigna el drone óptimo, retorna la `Mision` en estado `PENDIENTE` y valida que ningún observador sea alertado por error (`never().notificarFallo(...)`). |
+| **2** | **Misión CRÍTICA sin Drones Aptos** | Solicitud con `Prioridad.CRITICA` cuando no hay drones disponibles que cumplan los requisitos ambientales. | Notifica inmediatamente a todos los observadores registrados (`times(1).notificarFallo(isNull(), contains("ALERTA CRÍTICA"))`) y lanza `IllegalStateException`. |
+| **3** | **Drone en FALLO durante Asignación** | La estrategia devuelve inicialmente un drone cuya telemetría reporta `EstadoDrone.FALLO`. | Descarta el drone averiado, notifica a los observadores (`notificarFallo(eq(droneEnFallo), ...)`), lo remueve de la lista de candidatos y reintenta seleccionando automáticamente un drone alternativo funcional. |
+| **4** | **Lista de Drones Vacía** | Se suministra una flota vacía (`List.of()`) al servicio. | Lanza `IllegalStateException` defensivamente informando la imposibilidad de operar sin unidades. |
+| **5** | **Umbral Mínimo de Batería (Edge Case)** | Frontera exacta de batería: 35% operativo y 50% para misiones críticas. | Valida rigurosamente que $35\%$ sea aceptado pero $34\%$ descartado en misiones regulares; y que $50\%$ sea admitido pero $49\%$ descartado en misiones críticas. |
+
+### 2. Demostración TDD con Mockito (`AsignadorAutomaticoTDDTest.java`)
+
+```java
+@ExtendWith(MockitoExtension.class)
+class AsignadorAutomaticoTDDTest {
+
+    @Mock private EstrategiaSeleccionDrone estrategiaMock;
+    @Mock private ObservadorFalloDrone observadorMock;
+    @Mock private ObservadorFalloDrone observadorSecundarioMock;
+    @InjectMocks private AsignadorAutomaticoMisiones asignador;
+
+    @Test
+    @DisplayName("Misión CRÍTICA sin drones disponibles notifica a todos los observadores y lanza excepción")
+    void misionCritica_sinDronesDisponibles_notificaObservadoresYLanzaExcepcion() {
+        // ARRANGE
+        Mision misionCritica = crearMisionSolicitud("M-CRIT-99", ZonasCampus.EMBALSE_NORTE, ZonasCampus.LAGUNA_SUR, Prioridad.CRITICA, TipoCarga.EQUIPO_MEDICION);
+        when(estrategiaMock.seleccionar(any(), anyString(), any(), anyDouble(), any())).thenReturn(Optional.empty());
+        when(estrategiaMock.getNombre()).thenReturn("EstrategiaMock");
+
+        asignador.registrarObservador(observadorMock);
+        asignador.registrarObservador(observadorSecundarioMock);
+
+        // ACT & ASSERT
+        assertThrows(IllegalStateException.class, () -> asignador.asignar(misionCritica, List.of(), CondicionAgua.AGITADA));
+
+        // Todos los observadores notificados exactamente una vez (Reto 03 & Reto 12)
+        verify(observadorMock, times(1)).notificarFallo(isNull(), argThat(m -> m.contains("ALERTA CRÍTICA")));
+        verify(observadorSecundarioMock, times(1)).notificarFallo(isNull(), argThat(m -> m.contains("ALERTA CRÍTICA")));
+    }
+}
+```
+
+### 3. Suite Completa de Pruebas Unitarias de Prinplup (70 Pruebas Passing)
+
+El proyecto cuenta con **70 pruebas automatizadas** con **0 fallos, 0 errores y 100% de éxito**:
+* [`AsignadorAutomaticoTDDTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoTDDTest.java) (7 pruebas TDD con Mockito para contingencias y límites)
+* [`AsignadorAutomaticoMisionesTest.java`](file:///Prinplup/test/aquaport/service/AsignadorAutomaticoMisionesTest.java) (14 pruebas: estrategia, rendimiento RNF-01 <400ms, ramas de lógica)
+* [`ModelosDominioTest.java`](file:///Prinplup/test/aquaport/model/ModelosDominioTest.java) (11 pruebas exhaustivas para las clases y enums de dominio)
+* [`ConsultorFlotaAvanzadoTest.java`](file:///Prinplup/test/aquaport/service/ConsultorFlotaAvanzadoTest.java) (12 pruebas de Streams y Collectors)
+* [`PatronesDisenoIntegracionTest.java`](file:///Prinplup/test/aquaport/service/PatronesDisenoIntegracionTest.java) (5 pruebas de integración Strategy-Observer-Factory)
+* [`SolidPrincipiosTest.java`](file:///Prinplup/test/aquaport/service/SolidPrincipiosTest.java) (4 pruebas de validación de principios SOLID)
+* [`FabricaDronesTest.java`](file:///Prinplup/test/aquaport/service/FabricaDronesTest.java) (4 pruebas de Factory Method)
+* [`CentroControlAlertasTest.java`](file:///Prinplup/test/aquaport/service/CentroControlAlertasTest.java) (6 pruebas de alertas y logging)
+* [`PrinplupServiciosYObservadoresTest.java`](file:///Prinplup/test/aquaport/service/PrinplupServiciosYObservadoresTest.java) (4 pruebas de robustez y CLI)
+* [`EstrategiasSeleccionTest.java`](file:///Prinplup/test/aquaport/service/strategy/EstrategiasSeleccionTest.java) (3 pruebas de estrategias polimórficas)
 
 ```powershell
 mvn -f Prinplup/pom.xml test
