@@ -1,15 +1,29 @@
 package aquaport;
 
+import aquaport.infrastructure.adapter.AdaptadorAPIHidrica;
+import aquaport.infrastructure.external.ExternalHydricApiResponse;
+import aquaport.infrastructure.external.ServicioAPIHidricaExterna;
+import aquaport.model.CondicionHidrica;
+import aquaport.model.ContextoValidacion;
 import aquaport.model.DroneAcuatico;
 import aquaport.model.EstadoMision;
 import aquaport.model.MisionEnterprise;
 import aquaport.model.Prioridad;
+import aquaport.model.ResultadoValidacion;
 import aquaport.model.TipoCarga;
 import aquaport.model.TramoRuta;
 import aquaport.model.Waypoint;
 import aquaport.model.ZonasEnterprise;
 import aquaport.service.ConsultorFlotaEnterprise;
 import aquaport.service.Flota60Factory;
+import aquaport.service.ProveedorCondicionesHidricas;
+import aquaport.service.chain.ValidadorBateria;
+import aquaport.service.chain.ValidadorCapacidadCarga;
+import aquaport.service.chain.ValidadorCondicionesHidricas;
+import aquaport.service.chain.ValidadorMisionHandler;
+import aquaport.service.chain.ValidadorZonaActiva;
+import aquaport.service.decorator.DroneConCifrado;
+import aquaport.service.decorator.DroneConMonitoreo;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +46,7 @@ public final class MainEmpoleon {
         imprimirEncabezado(flota.size());
         demostrarCargaYEficiencia(consultor, misiones);
         demostrarRutasYPromedios(consultor, flota, waypoints, misiones);
+        demostrarPatronesEnterprise(misiones, flota.get(0));
     }
 
     private static void imprimirEncabezado(int totalDrones) {
@@ -76,5 +91,20 @@ public final class MainEmpoleon {
                 .ifPresent(d -> System.out.println("\n🏆 4. Drone con Mejor Historial: " + d.getId() + " (" + d.getModelo() + ")"));
         Map<String, Double> promedios = consultor.calcularBateriaPromedioPorZona(flota);
         System.out.println("\n⚡ 5. Bateria Promedio en Sola Pasada (Custom Collector): " + promedios);
+    }
+
+    private static void demostrarPatronesEnterprise(List<MisionEnterprise> misiones, DroneAcuatico baseDrone) {
+        ProveedorCondicionesHidricas prov = new AdaptadorAPIHidrica(z -> new ExternalHydricApiResponse(2.5, 12.0, 18.5, 3.2));
+        CondicionHidrica condicion = prov.consultarCondiciones(ZonasEnterprise.EMBALSE_INVESTIGACION);
+        ValidadorBateria cadena = new ValidadorBateria();
+        cadena.enlazarCon(new ValidadorCapacidadCarga()).enlazarCon(new ValidadorZonaActiva()).enlazarCon(new ValidadorCondicionesHidricas());
+        ResultadoValidacion res = cadena.validar(new ContextoValidacion(misiones.get(0), baseDrone, condicion));
+        System.out.println("\n⛓️ 6. Chain of Responsibility: " + (res.isExitoso() ? "Aprobada" : "Rechazada (" + res.getMotivoRechazo() + ")"));
+
+        DroneConMonitoreo conMonitoreo = new DroneConMonitoreo(baseDrone);
+        DroneConCifrado conCifrado = new DroneConCifrado(conMonitoreo);
+        conCifrado.transmitirTelemetria();
+        System.out.println("🛡️ 7. Decorator: " + conCifrado.getModelo() + " | Registros: " + conMonitoreo.getTotalTransmisiones());
+        System.out.println("🔌 8. Adapter API Hidrica: " + condicion);
     }
 }

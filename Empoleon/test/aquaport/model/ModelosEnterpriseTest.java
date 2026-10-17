@@ -98,4 +98,39 @@ class ModelosEnterpriseTest {
         c.setAccessible(true);
         assertThrows(InvocationTargetException.class, c::newInstance);
     }
+
+    @Test
+    @DisplayName("CondicionHidrica y enums evaluan todas las ramas logicas de navegabilidad")
+    void condicionesHidricas_evaluaTodasLasRamas() {
+        CondicionHidrica cTranquila = new CondicionHidrica(NivelAgua.TRANQUILO, NivelTurbidez.CLARA, 20, 5);
+        CondicionHidrica cAgitada = new CondicionHidrica(NivelAgua.AGITADO, NivelTurbidez.MEDIA, 18, 12);
+        CondicionHidrica cTormenta = new CondicionHidrica(NivelAgua.TORMENTOSO, NivelTurbidez.CRITICA, 10, 20);
+        CondicionHidrica cTurbia = new CondicionHidrica(NivelAgua.MODERADO, NivelTurbidez.CRITICA, 15, 8);
+
+        assertTrue(cTranquila.esSeguraPara(TipoDrone.SUPERFICIAL));
+        assertFalse(cAgitada.esSeguraPara(TipoDrone.SUPERFICIAL));
+        assertTrue(cAgitada.esSeguraPara(TipoDrone.SEMISUMERGIDO));
+        assertFalse(cTormenta.esSeguraPara(TipoDrone.SEMISUMERGIDO));
+        assertTrue(cAgitada.esSeguraPara(TipoDrone.BUCEADOR));
+        assertFalse(cTurbia.esSeguraPara(TipoDrone.BUCEADOR));
+        assertFalse(cTranquila.esSeguraPara(null));
+        assertFalse(cTormenta.esSeguraPara(TipoDrone.BUCEADOR));
+
+        assertTrue(NivelTurbidez.CLARA.permiteVisionOptica());
+        assertTrue(NivelTurbidez.MEDIA.permiteVisionOptica());
+        assertFalse(NivelTurbidez.ALTA.permiteVisionOptica());
+        assertFalse(NivelTurbidez.CRITICA.permiteVisionOptica());
+        assertTrue(NivelAgua.TRANQUILO.esNavegable());
+        assertFalse(NivelAgua.TORMENTOSO.esNavegable());
+
+        assertFalse(ResultadoValidacion.rechazo(null).isExitoso());
+        assertTrue(ResultadoValidacion.ok().toString().contains("OK"));
+        assertTrue(ResultadoValidacion.rechazo("X").toString().contains("RECHAZO"));
+        assertTrue(EstadoDrone.EN_MISION.isOperativo());
+        assertTrue(EstadoDrone.SUMERGIDO.isOperativo());
+        assertFalse(EstadoDrone.RECARGANDO.isOperativo());
+        assertFalse(EstadoMision.PENDIENTE.isTerminada());
+        assertTrue(EstadoMision.FALLIDA.isTerminada());
+        assertTrue(EstadoMision.CANCELADA.isTerminada());
+    }
 }

@@ -10,6 +10,10 @@
 
 ### 🚀 Nuevas Funcionalidades (Features)
 
+- [`34529cb`] **feat(empoleon-cli): integrar patrones Chain, Decorator y Adapter en MainEmpoleon** *(por Oscar10lm el 2026-10-17)*
+- [`11fc940`] **feat(empoleon-adapter): implementar AdaptadorAPIHidrica para aislar API externa** *(por Oscar10lm el 2026-10-17)*
+- [`5113a40`] **feat(empoleon-decorator): implementar Decorator para telemetria y cifrado** *(por Oscar10lm el 2026-10-17)*
+- [`7cf89bb`] **feat(empoleon-chain): implementar Chain of Responsibility en validaciones** *(por Oscar10lm el 2026-10-17)*
 - [`208bcae`] **feat(empoleon-cli): implementar MainEmpoleon y configurar JaCoCo Quality Gate** *(por Oscar10lm el 2026-10-17)*
 - [`7a4cd39`] **feat(empoleon-service): calcular carga de trabajo y eficiencia zonal** *(por Oscar10lm el 2026-10-17)*
 - [`cb73f48`] **feat(empoleon-collector): implementar BateriaPromedioCollector de complejidad O(N) en una sola pasada** *(por Oscar10lm el 2026-10-17)*
@@ -21,10 +25,6 @@
 - [`57c5876`] **feat(prinplup-tdd): implementar Reto 12 TDD con Mockito en AsignadorAutomaticoMisiones** *(por Oscar10lm el 2026-10-17)*
 - [`f347a48`] **feat(docs): actualizar diagrama de casos de uso v2 con actores nuevos, include y extend (Reto 10)** *(por Oscar10lm el 2026-10-13)*
 - [`f9a9a34`] **feat(ux): disenar componentes 6 estados tarjeta, 5 estados boton, flujo 3 pantallas y leyes Fitts/Hick (Reto 08)** *(por Oscar10lm el 2026-10-12)*
-- [`13603cb`] **feat(prinplup): implementar patrones Factory Method, Strategy y Observer con pruebas Mockito (Reto 03)** *(por Oscar10lm el 2026-10-12)*
-- [`9e836c1`] **feat(prinplup): implementar centro de control con recepcion de alertas automaticas en tiempo real** *(por Oscar10lm el 2026-10-12)*
-- [`b38f4c7`] **feat(prinplup): implementar asignacion automatica de drones segun condiciones hidricas y carga** *(por Oscar10lm el 2026-10-12)*
-- [`f390ea7`] **feat(prinplup): implementar FabricaDrones con patron Factory Method para la flota v2** *(por Oscar10lm el 2026-10-12)*
 
 ### 🐛 Correcciones de Errores (Fixes)
 
@@ -41,6 +41,7 @@
 
 ### 🧪 Pruebas Unitarias y de Integración
 
+- [`e183948`] **test(empoleon-solid): auditar aislamiento de dominio e inyeccion por constructor** *(por Oscar10lm el 2026-10-17)*
 - [`7b7fdab`] **test(empoleon-arch): auditar limites de lineas y dominio desacoplado** *(por Oscar10lm el 2026-10-17)*
 - [`fae2f8b`] **test(empoleon-streams): validar streams y colector en una sola pasada** *(por Oscar10lm el 2026-10-17)*
 - [`ff9682f`] **test(prinplup): agregar pruebas unitarias completas para ConsultorFlotaAvanzado (Reto 01)** *(por Oscar10lm el 2026-10-12)*
@@ -49,6 +50,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`7aa844b`] **docs(empoleon): documentar retos 01 y 02 y consolidar CHANGELOG automatico** *(por Oscar10lm el 2026-10-17)*
 - [`383e0e2`] **docs(prinplup): consolidar documentacion oficial de los 14 retos completados en README** *(por Oscar10lm el 2026-10-17)*
 - [`7a314c0`] **docs(prinplup-ux): implementar Reto 11 Mocks con IA y diseno de pantallas de asignacion autonoma** *(por Oscar10lm el 2026-10-17)*
 - [`2bbb71b`] **docs(sonarqube): documentar auditoria estatica v2 y adjuntar captura dashboard 4 indicadores verdes (Reto 14)** *(por Oscar10lm el 2026-10-17)*
@@ -63,7 +65,6 @@
 - [`14a8b68`] **docs: documentar resultados de JaCoCo y adjuntar captura del reporte de cobertura** *(por Oscar10lm el 2026-10-12)*
 - [`1ddf681`] **docs: documentar ciclo TDD y casos de prueba de ValidadorMision** *(por Oscar10lm el 2026-10-12)*
 - [`353acd4`] **docs: integrar prototipo interactivo HTML de la estacion de control en README** *(por Oscar10lm el 2026-10-12)*
-- [`f065870`] **docs: verificar heurísticas de Nielsen para los 3 estados del panel de control** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 
