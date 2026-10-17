@@ -51,6 +51,7 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`b34d2f9`] **docs(changelog): actualizar historial tras fusion de retos 13 y 14** *(por Oscar10lm el 2026-10-17)*
 - [`2e4ca42`] **docs(empoleon): integrar retos 13 y 14 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`a85372b`] **docs(empoleon-qa): configurar quality gate y certificar 6 indicadores sonarqube** *(por Oscar10lm el 2026-10-17)*
 - [`83f29ae`] **docs: actualizar CHANGELOG tras merge de Retos 09 y 10 Empoleon** *(por Oscar10lm el 2026-10-17)*
@@ -65,7 +66,6 @@
 - [`dfbb62a`] **docs(empoleon): integrar retos 05 y 06 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`a26d8e3`] **docs(empoleon-rf): documentar 5 RF, 5 RNF, MoSCoW y analisis de tensiones** *(por Oscar10lm el 2026-10-17)*
 - [`db67ab6`] **docs(empoleon-c4): disenar diagrama C4 nivel 2 de contenedores** *(por Oscar10lm el 2026-10-17)*
-- [`5e2ecc9`] **docs: actualizar CHANGELOG tras merge de Retos 03 y 04 Empoleon** *(por Oscar10lm el 2026-10-17)*
 
 ### ⚙️ Integración Continua y Calidad
 
