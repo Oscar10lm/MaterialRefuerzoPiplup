@@ -1,0 +1,52 @@
+@startuml diagrama-cu-empoleon
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam roundcorner 12
+
+actor "Operador de Misión" as Operador #084298
+actor "Técnico de Rescate" as Tecnico #084298
+actor "AquaPort Core" as Core <<Sistema>> #1168BD
+actor "Módulo de Telemetría" as Telemetria <<Sistema>> #1168BD
+actor "Sistema LIMS Central" as Lims <<Sistema>> #475569
+
+rectangle "Sistema AquaPort Enterprise (Empoleon v3)" {
+    usecase "CU-01: Ejecutar Misión Multi-Etapa con Waypoints" as CU01 #BAE6FD
+    
+    usecase "CU-02: Validar Misión con Cadena de Responsabilidad" as CU02 #E0F2FE
+    usecase "CU-03: Consultar Condiciones Hídricas Zonales (Adapter)" as CU03 #E0F2FE
+    usecase "CU-04: Coordinar Traspaso Físico en Waypoint/Esclusa" as CU04 #E0F2FE
+    usecase "CU-05: Sellar Acta Digital de Cadena de Custodia (SHA-256)" as CU05 #E0F2FE
+
+    usecase "CU-EXT-01: Reasignar Drone Automáticamente en Waypoint" as EXT01 #FEE2E2
+    usecase "CU-EXT-02: Desviar Ruta por Condiciones Hídricas Adversas" as EXT02 #FEE2E2
+    usecase "CU-EXT-03: Activar Espera Pasiva en Boya Climatizada" as EXT03 #FEE2E2
+    usecase "CU-EXT-04: Aislar Muestra y Reintentar Certificación Custodia" as EXT04 #FEE2E2
+    usecase "CU-EXT-05: Ejecutar Anclaje de Emergencia por Batería Crítica" as EXT05 #FEE2E2
+}
+
+' Asociaciones de Actores
+Operador --> CU01
+Core --> CU01
+Core --> CU04
+Telemetria --> EXT01
+Lims --> CU05
+Lims --> EXT04
+Tecnico --> EXT05
+Tecnico --> EXT01
+
+' Relaciones de Inclusión <<include>>
+CU01 ..> CU02 : <<include>>
+CU01 ..> CU03 : <<include>>
+CU01 ..> CU04 : <<include>>
+CU01 ..> CU05 : <<include>>
+
+' Relaciones de Extensión <<extend>> con condición explícita
+EXT01 ..> CU01 : <<extend>>\n[Condición: Drone entra en FALLO o pérdida de señal > 5.0s]
+EXT02 ..> CU01 : <<extend>>\n[Condición: Oleaje > 2.0m o corriente incompatible en canal]
+EXT03 ..> CU01 : <<extend>>\n[Condición: Muelle del Laboratorio Central saturado o inactivo]
+EXT04 ..> CU05 : <<extend>>\n[Condición: Discrepancia en hash SHA-256 o temperatura > 6°C]
+EXT05 ..> CU01 : <<extend>>\n[Condición: Batería residual <= 20% en mitad de ruta]
+
+@enduml

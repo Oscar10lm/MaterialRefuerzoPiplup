@@ -1,0 +1,35 @@
+@startuml c4-contenedores-empoleon
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Diagrama de Contenedores C4 (Nivel 2) — AquaPort Enterprise (Empoleon v3)
+
+Person(operador, "Operador / Científico", "Personal técnico y científico que planifica misiones multi-etapa, supervisa alertas y analiza muestras.")
+
+System_Boundary(c1, "Sistema AquaPort Enterprise") {
+    Container(spa, "Panel de Control Web", "SPA, HTML5, JavaScript, CSS", "Dashboard interactivo para monitoreo en vivo de 60 drones, rutas multi-etapa y alertas.")
+    Container(core, "AquaPort Core Service", "Java 21, Spring Boot", "Orquestación central, rutas multi-etapa, validación con Chain of Responsibility, cálculo de eficiencia y custodia de muestras.")
+    Container(telemetry, "Módulo de Telemetría", "Java 21 Worker, MQTT Engine", "Ingesta masiva de telemetría, sobre cifrado AES-256 (Decorator), bitácora inmutable y detección de fallos.")
+    ContainerDb(db, "BD Misiones y Telemetría", "PostgreSQL 16, TimescaleDB", "Persistencia relacional de 60 drones, misiones, tramos, waypoints, actas de custodia y series temporales.")
+    Container(adapter, "Adaptador API Hídrica", "Java Ports & Adapters", "Aísla la API externa meteorológica traduciendo JSON en inglés al dominio canónico con caché.")
+}
+
+System_Ext(drones, "Flota 60 Drones IoT", "60 drones acuáticos en 4 zonas (Superficial, Semisumergido, Buceador) con telemetría cifrada.")
+System_Ext(gis, "Sistema GIS ECI", "Infraestructura geoespacial de canales, boyas y límites de cuencas hídricas.")
+System_Ext(lims, "Sistema LIMS Central", "Gestión de laboratorio químico-biológico y recepción de actas de cadena de custodia.")
+System_Ext(api_hidrica, "API Meteorológica Hídrica", "Estaciones limnológicas que entregan waterLevel, turbidity, temperature y depth.")
+
+Rel(operador, spa, "Usa dashboard y despacha misiones", "HTTPS / GUI")
+Rel(spa, core, "Solicita misiones y órdenes de asignación", "HTTPS / REST JSON")
+Rel_Neighbor(spa, telemetry, "Streaming de telemetría y alertas", "WSS / WebSockets")
+Rel(drones, telemetry, "Telemetría cifrada y waypoints", "MQTTS / TLS [Sobre AES-256]")
+Rel(telemetry, core, "Notifica eventos de fallo y desvíos", "In-Process / Síncrono")
+Rel(telemetry, db, "Batch insert de telemetría y logs", "TCP / JDBC [Port 5432]")
+Rel(core, db, "CRUD de misiones, rutas y actas de custodia", "TCP / JDBC [Port 5432]")
+Rel(core, adapter, "consultarCondiciones(zona)", "Java Interface [Puerto DIP]")
+Rel(adapter, api_hidrica, "Consulta condiciones limnológicas en inglés", "HTTPS / REST JSON")
+Rel(core, gis, "Sincroniza boyas, geocercas y waypoints", "HTTPS / WFS GeoJSON")
+Rel(core, lims, "Transfiere actas de custodia y muestras", "HTTPS REST / AMQP")
+
+@enduml

@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+# AquaPort Enterprise - Hook de validacion de Conventional Commits
+# Formato: <tipo>(<alcance>): <descripcion>
+
+commit_msg_file="$1"
+commit_msg=$(head -n 1 "$commit_msg_file")
+
+pattern="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_\.-]+\))?: .{1,80}$"
+
+if echo "$commit_msg" | grep -qE "$pattern"; then
+    exit 0
+fi
+
+# Permitir commits de merge automaticos
+if echo "$commit_msg" | grep -qE "^Merge "; then
+    exit 0
+fi
+
+echo "❌ [ERROR] Formato de commit invalido segun Conventional Commits:"
+echo "   Mensaje actual: '$commit_msg'"
+echo ""
+echo "   El mensaje debe coincidir con:"
+echo "   <tipo>(<alcance>): <descripcion imperativa breve>"
+echo ""
+echo "   Tipos permitidos: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+echo "   Ejemplo: feat(empoleon-model): agregar waypoints para rutas multi-etapa"
+exit 1
