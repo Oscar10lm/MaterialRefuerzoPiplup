@@ -50,6 +50,9 @@
 
 ### 📚 Documentación y Diagramas
 
+- [`967ee80`] **docs(empoleon-ux): construir design system tokens 6 pantallas y prototipo HTML** *(por Oscar10lm el 2026-10-17)*
+- [`3dd4fd9`] **docs(empoleon-dosw): completar plantilla DOSW AP-15 mision multi-etapa** *(por Oscar10lm el 2026-10-17)*
+- [`d95a4a7`] **docs: actualizar CHANGELOG tras merge de Retos 05 y 06 Empoleon** *(por Oscar10lm el 2026-10-17)*
 - [`dfbb62a`] **docs(empoleon): integrar retos 05 y 06 en README y actualizar CHANGELOG** *(por Oscar10lm el 2026-10-17)*
 - [`a26d8e3`] **docs(empoleon-rf): documentar 5 RF, 5 RNF, MoSCoW y analisis de tensiones** *(por Oscar10lm el 2026-10-17)*
 - [`db67ab6`] **docs(empoleon-c4): disenar diagrama C4 nivel 2 de contenedores** *(por Oscar10lm el 2026-10-17)*
@@ -62,9 +65,6 @@
 - [`55b80a5`] **docs(agile): planificar sprint de Jira v2 con Fibonacci, DoD y captura de sprint activo (Reto 09)** *(por Oscar10lm el 2026-10-12)*
 - [`269ae75`] **docs(prinplup): completar plantilla DOSW para RF AP-07 asignacion automatica (Reto 07)** *(por Oscar10lm el 2026-10-12)*
 - [`0c55a61`] **docs(prinplup): documentar especificacion RF/RNF, MoSCoW y resolucion tension AP-07 vs AP-08 (Reto 06)** *(por Oscar10lm el 2026-10-12)*
-- [`9b8a197`] **docs(prinplup): agregar diagrama de contexto C4 comparando MVP v1 vs v2 y flujos etiquetados (Reto 05)** *(por Oscar10lm el 2026-10-12)*
-- [`c17965c`] **docs(prinplup): documentar auditoria y cumplimiento de principios SOLID en README (Reto 04)** *(por Oscar10lm el 2026-10-12)*
-- [`41b83c5`] **docs(prinplup): documentar flujo GitFlow con diagrama Mermaid, ramas y tags (Reto 02)** *(por Oscar10lm el 2026-10-12)*
 
 ### ⚙️ Integración Continua y Calidad
 
